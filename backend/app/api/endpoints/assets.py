@@ -5,7 +5,7 @@ from sqlalchemy import update
 from typing import List, Optional
 import uuid
 
-from app.api.deps import get_db, get_current_active_user, get_current_active_manager_or_admin
+from app.api.deps import get_db, get_current_active_user, get_current_active_admin_or_asset_manager
 from app.models.asset import Asset
 from app.models.category import Category
 from app.schemas.asset import AssetCreate, AssetResponse
@@ -42,7 +42,7 @@ def create_asset(
     *,
     db: Session = Depends(get_db),
     asset_in: AssetCreate,
-    current_user = Depends(get_current_active_manager_or_admin)
+    current_user = Depends(get_current_active_admin_or_asset_manager)
 ):
     """
     Create new asset.

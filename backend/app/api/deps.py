@@ -58,3 +58,10 @@ def get_current_active_manager_or_admin(
     if current_user.role not in ["Admin", "Asset Manager", "Department Head"]:
         raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
     return current_user
+
+def get_current_active_admin_or_asset_manager(
+    current_user: Employee = Depends(get_current_active_user),
+) -> Employee:
+    if current_user.role not in ["Admin", "Asset Manager"]:
+        raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    return current_user

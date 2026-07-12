@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.core.database import Base
 
 class Employee(Base):
@@ -14,3 +15,14 @@ class Employee(Base):
     status = Column(String(20), default="Active")  # Active, Deactivated
 
     department = relationship("Department")
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(String(50), primary_key=True, index=True)
+    user_id = Column(String(50), ForeignKey("employees.id"), nullable=False)
+    token_hash = Column(String(255), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("Employee")
