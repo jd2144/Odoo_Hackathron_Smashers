@@ -4,7 +4,8 @@ import { Bell, Trash2, CheckCheck, ShieldAlert } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { MockDatabase } from '../services/mockDb';
+import { notificationApi } from '../api/notificationApi';
+import { apiClient } from '../api/apiClient';
 import { Notification, AuditLog } from '../types';
 import toast from 'react-hot-toast';
 
@@ -14,11 +15,17 @@ export const NotificationsPage: React.FC = () => {
   const [view, setView] = React.useState<'notifications' | 'audit_trail'>('notifications');
   const [isLoading, setIsLoading] = React.useState(true);
 
-  const fetchLogsAndNotifs = () => {
+  const fetchLogsAndNotifs = async () => {
     setIsLoading(true);
     try {
-      const allNotifs = MockDatabase.getNotifications();
-      const allLogs = MockDatabase.getAuditLogs();
+      const allNotifs = await notificationApi.getNotifications();
+      let allLogs: AuditLog[] = [];
+      try {
+        const logRes = await apiClient.get<AuditLog[]>('/api/audits/logs');
+        allLogs = logRes.data;
+      } catch {
+        // Fallback or empty logs
+      }
       setNotifications(allNotifs);
       setLogs(allLogs);
     } catch (e) {
@@ -32,18 +39,24 @@ export const NotificationsPage: React.FC = () => {
     fetchLogsAndNotifs();
   }, []);
 
-  const handleMarkAllRead = () => {
-    const list = MockDatabase.getNotifications();
-    const updated = list.map(n => ({ ...n, isRead: true }));
-    MockDatabase.saveNotifications(updated);
-    toast.success('Marked all as read.');
-    fetchLogsAndNotifs();
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationApi.markAllAsRead();
+      toast.success('Marked all as read.');
+      fetchLogsAndNotifs();
+    } catch {
+      toast.error('Failed to mark notifications as read.');
+    }
   };
 
-  const handleClearAll = () => {
-    MockDatabase.saveNotifications([]);
-    toast.success('Cleared notification list.');
-    fetchLogsAndNotifs();
+  const handleClearAll = async () => {
+    try {
+      await apiClient.delete('/api/notifications');
+      toast.success('Cleared notification list.');
+      fetchLogsAndNotifs();
+    } catch {
+      toast.error('Failed to clear notifications.');
+    }
   };
 
   if (isLoading) {

@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Input } from '../components/ui/Input';
 import { assetService } from '../services/asset.service';
-import { MockDatabase } from '../services/mockDb';
+import { auditApi } from '../api/auditApi';
 import { AuditCycle, AuditItem, Asset } from '../types';
 import toast from 'react-hot-toast';
 
@@ -24,8 +24,13 @@ export const AssetAuditPage: React.FC = () => {
   const loadAuditLogs = async () => {
     setIsLoading(true);
     try {
-      const allAudits = MockDatabase.getAudits();
-      const allAuditItems = MockDatabase.getAuditItems();
+      const allAudits = await auditApi.getAudits();
+      let allAuditItems: AuditItem[] = [];
+      try {
+        allAuditItems = await auditApi.getAuditItems();
+      } catch {
+        // Fallback or empty audit items
+      }
       const allAssets = await assetService.getAssets();
 
       setAudits(allAudits);
@@ -45,107 +50,53 @@ export const AssetAuditPage: React.FC = () => {
     loadAuditLogs();
   }, []);
 
-  const handleCreateAudit = (e: React.FormEvent) => {
+  const handleCreateAudit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auditName.trim()) {
       toast.error('Audit cycle name is required.');
       return;
     }
 
-    const currentAudits = MockDatabase.getAudits();
+    const currentAudits = audits;
     const activeExists = currentAudits.some(a => a.status === 'Active');
     if (activeExists) {
       toast.error('An active audit cycle is already in progress. Please close it first.');
       return;
     }
 
-    const newCycle: AuditCycle = {
-      id: MockDatabase.generateId('aud'),
-      name: auditName,
-      scopeType: 'All',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      assignedAuditorIds: ['emp-2'],
-      status: 'Active'
-    };
-
-    MockDatabase.saveAudits([newCycle, ...currentAudits]);
-
-    const activeAssets = assets.filter(a => a.status !== 'Retired' && a.status !== 'Disposed');
-    const newItems: AuditItem[] = activeAssets.map(a => ({
-      id: MockDatabase.generateId('aui'),
-      auditCycleId: newCycle.id,
-      assetId: a.id,
-      status: 'Pending'
-    }));
-
-    MockDatabase.saveAuditItems([...newItems, ...MockDatabase.getAuditItems()]);
-    toast.success(`Audit cycle "${auditName}" is now active!`);
-    
-    setAuditName('');
-    setShowForm(false);
-    loadAuditLogs();
-  };
-
-  const handleMarkItem = (itemId: string, status: 'Verified' | 'Missing' | 'Damaged') => {
-    const items = MockDatabase.getAuditItems();
-    const idx = items.findIndex(i => i.id === itemId);
-    if (idx !== -1) {
-      items[idx] = {
-        ...items[idx],
-        status,
-        verifiedDate: new Date().toISOString(),
-        auditorId: 'emp-2',
-        notes: `Marked as ${status} during physical audit sweep.`
-      };
-      MockDatabase.saveAuditItems(items);
-      toast.success(`Asset marked as ${status}.`);
+    try {
+      await auditApi.createAudit(auditName);
+      toast.success(`Audit cycle "${auditName}" is now active!`);
+      setAuditName('');
+      setShowForm(false);
       loadAuditLogs();
+    } catch {
+      toast.error('Failed to start new audit cycle.');
     }
   };
 
-  const handleCloseAuditCycle = () => {
+  const handleMarkItem = async (itemId: string, status: 'Verified' | 'Missing' | 'Damaged') => {
+    if (!activeCycle) return;
+    try {
+      await auditApi.scanAuditItem(activeCycle.id, itemId, status);
+      toast.success(`Asset marked as ${status}.`);
+      loadAuditLogs();
+    } catch {
+      toast.error('Failed to register audit scan.');
+    }
+  };
+
+  const handleCloseAuditCycle = async () => {
     if (!activeCycle) return;
 
-    const currentAudits = MockDatabase.getAudits();
-    const cycleIdx = currentAudits.findIndex(a => a.id === activeCycle.id);
-    if (cycleIdx === -1) return;
-
-    currentAudits[cycleIdx] = {
-      ...currentAudits[cycleIdx],
-      status: 'Completed',
-      closedDate: new Date().toISOString().split('T')[0]
-    };
-    MockDatabase.saveAudits(currentAudits);
-
-    const activeItems = auditItems.filter(i => i.auditCycleId === activeCycle.id);
-    const allAssets = MockDatabase.getAssets();
-
-    activeItems.forEach(item => {
-      const assetIdx = allAssets.findIndex(a => a.id === item.assetId);
-      if (assetIdx !== -1) {
-        if (item.status === 'Missing') {
-          allAssets[assetIdx].status = 'Lost';
-          MockDatabase.addNotification(
-            'Audit Discrepancy Flagged',
-            `Asset "${allAssets[assetIdx].name}" was reported missing in "${activeCycle.name}" and status has been updated to Lost.`,
-            'Audit Discrepancy Flagged'
-          );
-        } else if (item.status === 'Damaged') {
-          MockDatabase.addNotification(
-            'Audit Discrepancy Flagged',
-            `Asset "${allAssets[assetIdx].name}" was flagged as damaged in "${activeCycle.name}". Repair ticket requested.`,
-            'Audit Discrepancy Flagged'
-          );
-        }
-      }
-    });
-
-    MockDatabase.saveAssets(allAssets);
-    MockDatabase.logAction('emp-2', 'Sarah Connor', 'Close Audit Cycle', `Closed audit cycle "${activeCycle.name}".`);
-    toast.success('Audit cycle locked. Discrepancy and asset statuses synchronized.');
-    setActiveCycle(null);
-    loadAuditLogs();
+    try {
+      await auditApi.closeAudit(activeCycle.id);
+      toast.success('Audit cycle locked. Discrepancy and asset statuses synchronized.');
+      setActiveCycle(null);
+      loadAuditLogs();
+    } catch {
+      toast.error('Failed to close audit cycle.');
+    }
   };
 
   const getAssetName = (id: string) => {
@@ -337,13 +288,13 @@ export const AssetAuditPage: React.FC = () => {
                               size="sm" 
                               variant="ghost" 
                               className="text-[9px] uppercase font-black tracking-widest text-sahara-clay/60 hover:text-sahara-coffee cursor-pointer"
-                              onClick={() => {
-                                const items = MockDatabase.getAuditItems();
-                                const idx = items.findIndex(i => i.id === item.id);
-                                if (idx !== -1) {
-                                  items[idx].status = 'Pending';
-                                  MockDatabase.saveAuditItems(items);
+                              onClick={async () => {
+                                if (!activeCycle) return;
+                                try {
+                                  await auditApi.scanAuditItem(activeCycle.id, item.id, 'Pending');
                                   loadAuditLogs();
+                                } catch {
+                                  toast.error('Failed to reset checklist item.');
                                 }
                               }}
                             >

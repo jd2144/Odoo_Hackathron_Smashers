@@ -4,7 +4,7 @@ import { ShieldAlert, Clock, RefreshCw, LogOut, FileText, User, Mail, ChevronRig
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { MockDatabase } from '../../services/mockDb';
+import { organizationApi } from '../../api/organizationApi';
 import { Department, UserRole } from '../../types';
 import { APP } from '../../constants/app';
 import toast from 'react-hot-toast';
@@ -117,7 +117,15 @@ export const RejectedUserView: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
-    setDepartments(MockDatabase.getDepartments());
+    const fetchDepts = async () => {
+      try {
+        const depts = await organizationApi.getDepartments();
+        setDepartments(depts);
+      } catch {
+        // Fallback
+      }
+    };
+    fetchDepts();
     if (user) {
       const parts = user.name.split(' ');
       setFirstName(parts[0] || '');

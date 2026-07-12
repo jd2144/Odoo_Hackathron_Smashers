@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { MockDatabase } from './services/mockDb';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WaitingForApprovalView, RejectedUserView } from './components/layout/PendingRejectedViews';
 
@@ -85,11 +84,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
 };
 
 export const App: React.FC = () => {
-  // Initialize mock databases on app mount
-  React.useEffect(() => {
-    MockDatabase.initialize();
-  }, []);
-
   return (
     <AuthProvider>
       <BrowserRouter>

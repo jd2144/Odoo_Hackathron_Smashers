@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 import { Employee, Notification, UserRole } from '../../types';
-import { MockDatabase } from '../../services/mockDb';
+import { notificationApi } from '../../api/notificationApi';
+import { organizationApi } from '../../api/organizationApi';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 
@@ -28,11 +29,19 @@ export const Layout: React.FC<LayoutProps> = ({
   const { user: authUser, logout: authLogout } = useAuth();
 
   // Local state fallbacks if props are not supplied (e.g. during Route rendering)
-  const [localNotifications, setLocalNotifications] = React.useState<Notification[]>(() => MockDatabase.getNotifications());
+  const [localNotifications, setLocalNotifications] = React.useState<Notification[]>([]);
 
   // Keep state synchronized with database on route change
   React.useEffect(() => {
-    setLocalNotifications(MockDatabase.getNotifications());
+    const fetchNotifs = async () => {
+      try {
+        const notifs = await notificationApi.getNotifications();
+        setLocalNotifications(notifs);
+      } catch {
+        // ignore
+      }
+    };
+    fetchNotifs();
   }, [location.pathname]);
 
   // Support local state triggers for immediate responsiveness
@@ -48,29 +57,36 @@ export const Layout: React.FC<LayoutProps> = ({
     }
   };
 
-  const handleRoleChange = (newRole: UserRole) => {
+  const handleRoleChange = async (newRole: UserRole) => {
     if (onRoleChange) {
       onRoleChange(newRole);
     } else {
-      const active = MockDatabase.getActiveUser();
+      const active = currentUser;
       if (active) {
-        const updated = { ...active, role: newRole };
-        MockDatabase.saveActiveUser(updated);
-        // Dispatch event for local component reactivity
-        window.dispatchEvent(new Event('storage'));
+        try {
+          const updated = await organizationApi.updateEmployeeRole(active.id, newRole);
+          localStorage.setItem('aureon_currentUser', JSON.stringify(updated));
+          // Dispatch event for local component reactivity
+          window.dispatchEvent(new Event('storage'));
+        } catch {
+          // Fallback if needed
+        }
       }
     }
   };
 
-  const handleMarkNotificationAsRead = (id: string) => {
+  const handleMarkNotificationAsRead = async (id: string) => {
     if (onMarkNotificationAsRead) {
       onMarkNotificationAsRead(id);
     } else {
-      const notifs = MockDatabase.getNotifications();
-      const updated = notifs.map(n => n.id === id ? { ...n, isRead: true } : n);
-      localStorage.setItem('aureon_notifications', JSON.stringify(updated));
-      setLocalNotifications(updated);
-      window.dispatchEvent(new Event('storage'));
+      try {
+        await notificationApi.markNotificationAsRead(id);
+        const updated = localNotifications.map(n => n.id === id ? { ...n, isRead: true } : n);
+        setLocalNotifications(updated);
+        window.dispatchEvent(new Event('storage'));
+      } catch {
+        // Fallback
+      }
     }
   };
 

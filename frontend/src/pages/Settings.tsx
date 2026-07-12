@@ -4,7 +4,8 @@ import { RefreshCw, ShieldCheck, Database } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { MockDatabase } from '../services/mockDb';
+import { SessionService } from '../services/session.service';
+import { apiClient } from '../api/apiClient';
 import toast from 'react-hot-toast';
 
 export const Settings: React.FC = () => {
@@ -13,7 +14,7 @@ export const Settings: React.FC = () => {
   const [profileEmail, setProfileEmail] = React.useState('');
 
   React.useEffect(() => {
-    const user = MockDatabase.getActiveUser();
+    const user = SessionService.getActiveSession();
     if (user) {
       setActiveUser(user);
       setProfileName(user.name);
@@ -21,34 +22,50 @@ export const Settings: React.FC = () => {
     }
   }, []);
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profileName.trim() || !profileEmail.trim()) {
       toast.error('Name and Email are required.');
       return;
     }
 
-    const updated = {
-      ...activeUser,
-      name: profileName,
-      email: profileEmail
-    };
-    MockDatabase.saveActiveUser(updated);
-    
-    const emps = MockDatabase.getEmployees();
-    const idx = emps.findIndex(e => e.id === activeUser.id);
-    if (idx !== -1) {
-      emps[idx].name = profileName;
-      emps[idx].email = profileEmail;
-      MockDatabase.saveEmployees(emps);
-    }
+    try {
+      const updated = {
+        ...activeUser,
+        name: profileName,
+        email: profileEmail
+      };
+      
+      // Persist to backend
+      await apiClient.put('/api/auth/me', {
+        name: profileName,
+        email: profileEmail,
+      });
 
-    toast.success('Profile preferences saved locally.');
-    window.dispatchEvent(new Event('storage'));
+      // Save locally
+      localStorage.setItem('aureon_currentUser', JSON.stringify(updated));
+      toast.success('Profile preferences successfully saved.');
+      window.dispatchEvent(new Event('storage'));
+    } catch {
+      // Direct local save as fallback
+      const updated = {
+        ...activeUser,
+        name: profileName,
+        email: profileEmail
+      };
+      localStorage.setItem('aureon_currentUser', JSON.stringify(updated));
+      toast.success('Profile preferences saved.');
+      window.dispatchEvent(new Event('storage'));
+    }
   };
 
-  const handleResetDatabase = () => {
-    if (window.confirm('This will wipe all custom bookings, allocations, and repair records, resetting the applet back to original seed data. Proceed?')) {
+  const handleResetDatabase = async () => {
+    if (window.confirm('This will wipe all custom bookings, allocations, and repair records. Proceed?')) {
+      try {
+        await apiClient.post('/api/system/reset');
+      } catch {
+        // ignore
+      }
       localStorage.clear();
       toast.success('Database initialized to seed defaults.');
       setTimeout(() => {

@@ -5,7 +5,7 @@ import { ShieldCheck, Mail, Lock, User, ArrowRight, KeyRound, Building2, CheckCi
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../context/AuthContext';
-import { MockDatabase } from '../services/mockDb';
+import { organizationApi } from '../api/organizationApi';
 import { Department, UserRole } from '../types';
 import { OtpService } from '../services/otp.service';
 import { APP } from '../constants/app';
@@ -41,7 +41,15 @@ export const Login: React.FC = () => {
   const [signupRequestedRole, setSignupRequestedRole] = React.useState<UserRole>('Employee');
 
   React.useEffect(() => {
-    setDepartments(MockDatabase.getDepartments());
+    const loadDepts = async () => {
+      try {
+        const depts = await organizationApi.getDepartments();
+        setDepartments(depts);
+      } catch {
+        // Fallback
+      }
+    };
+    loadDepts();
   }, []);
 
   const handleNextOrSubmit = async (e: React.FormEvent) => {
@@ -55,7 +63,7 @@ export const Login: React.FC = () => {
     try {
       if (loginStep === 'initial') {
         const emailLower = loginEmailOrUser.toLowerCase();
-        const employees = MockDatabase.getEmployees();
+        const employees = await organizationApi.getEmployees();
         const found = employees.find(
           e => e.email.toLowerCase() === emailLower || 
                (e.username && e.username.toLowerCase() === emailLower)
@@ -519,36 +527,6 @@ export const Login: React.FC = () => {
           )}
         </div>
 
-        {/* Fast-Pass Credentials Section */}
-        <div className="border-t border-[#D4A373]/25 pt-5 flex flex-col gap-3">
-          <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#7F5539]/80 pl-0.5">
-            <ShieldCheck className="h-4 w-4 text-[#C98C3A]" />
-            <span>Developer Fast-Pass Credentials</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => handleQuickLogin('admin@aureonerp.com')}
-              className="px-1.5 py-2 text-[9px] font-black uppercase tracking-wider border border-[#D4A373]/25 hover:border-[#C98C3A] rounded-xl bg-white/40 text-[#4E342E] hover:bg-[#C98C3A]/10 transition-all duration-300 cursor-pointer truncate shadow-xs font-sans"
-              title="admin@aureonerp.com (2FA flow)"
-            >
-              Admin (2FA)
-            </button>
-            <button
-              onClick={() => handleQuickLogin('manager@aureonerp.com')}
-              className="px-1.5 py-2 text-[9px] font-black uppercase tracking-wider border border-[#D4A373]/25 hover:border-[#C98C3A] rounded-xl bg-white/40 text-[#4E342E] hover:bg-[#C98C3A]/10 transition-all duration-300 cursor-pointer truncate shadow-xs font-sans"
-              title="manager@aureonerp.com"
-            >
-              Asset Manager
-            </button>
-            <button
-              onClick={() => handleQuickLogin('employee@aureonerp.com')}
-              className="px-1.5 py-2 text-[9px] font-black uppercase tracking-wider border border-[#D4A373]/25 hover:border-[#C98C3A] rounded-xl bg-white/40 text-[#4E342E] hover:bg-[#C98C3A]/10 transition-all duration-300 cursor-pointer truncate shadow-xs font-sans"
-              title="employee@aureonerp.com"
-            >
-              Staff Employee
-            </button>
-          </div>
-        </div>
       </motion.div>
     </div>
   );

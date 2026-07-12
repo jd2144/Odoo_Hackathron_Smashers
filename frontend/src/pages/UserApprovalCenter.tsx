@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Input } from '../components/ui/Input';
 import { authService } from '../services/auth.service';
-import { MockDatabase } from '../services/mockDb';
+import { organizationApi } from '../api/organizationApi';
 import { Employee, Department, UserRole } from '../types';
 import toast from 'react-hot-toast';
 
@@ -29,11 +29,13 @@ export const UserApprovalCenter: React.FC = () => {
   const [rejectingUser, setRejectingUser] = React.useState<Employee | null>(null);
   const [rejectionReason, setRejectionReason] = React.useState('');
 
-  const fetchUsers = () => {
+  const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const allEmps = MockDatabase.getEmployees();
-      const allDepts = MockDatabase.getDepartments();
+      const [allEmps, allDepts] = await Promise.all([
+        organizationApi.getEmployees(),
+        organizationApi.getDepartments()
+      ]);
       setEmployees(allEmps);
       setDepartments(allDepts);
     } catch (e) {
