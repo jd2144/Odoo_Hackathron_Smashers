@@ -27,6 +27,7 @@ from app.models.department import Department
 from app.models.category import Category
 from app.models.asset import Asset
 from app.models.allocation import AssetAllocation, AssetTransfer
+from app.models.booking import AssetBooking
 
 target_metadata = Base.metadata
 
