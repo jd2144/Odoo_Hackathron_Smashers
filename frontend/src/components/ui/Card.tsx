@@ -7,7 +7,7 @@ export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 }) => {
   return (
     <div 
-      className={`bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden ${className}`} 
+      className={`bg-white/80 backdrop-blur-md border border-sahara-sand/20 rounded-[20px] shadow-lg shadow-sahara-clay/5 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-sahara-clay/8 hover:border-sahara-sand/30 ${className}`} 
       {...props}
     >
       {children}
@@ -22,7 +22,7 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 }) => {
   return (
     <div 
-      className={`px-5 py-4 border-b border-brand-border flex flex-col gap-1 ${className}`} 
+      className={`px-6 py-5 border-b border-sahara-sand/15 bg-gradient-to-r from-sahara-cream/40 to-transparent flex flex-col gap-1.5 ${className}`} 
       {...props}
     >
       {children}
@@ -37,7 +37,7 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
 }) => {
   return (
     <h3 
-      className={`text-sm font-semibold text-brand-text tracking-tight uppercase ${className}`} 
+      className={`text-xs font-bold text-sahara-coffee tracking-widest uppercase font-sans ${className}`} 
       {...props}
     >
       {children}
@@ -52,7 +52,7 @@ export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement
 }) => {
   return (
     <p 
-      className={`text-xs text-brand-muted ${className}`} 
+      className={`text-xs text-sahara-clay/80 font-sans leading-relaxed ${className}`} 
       {...props}
     >
       {children}
@@ -67,7 +67,7 @@ export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 }) => {
   return (
     <div 
-      className={`p-5 ${className}`} 
+      className={`p-6 ${className}`} 
       {...props}
     >
       {children}
@@ -82,7 +82,7 @@ export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 }) => {
   return (
     <div 
-      className={`px-5 py-3 border-t border-brand-border bg-gray-50 flex items-center justify-between gap-2 ${className}`} 
+      className={`px-6 py-4 border-t border-sahara-sand/15 bg-sahara-light/20 flex items-center justify-between gap-3 ${className}`} 
       {...props}
     >
       {children}

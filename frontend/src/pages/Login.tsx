@@ -8,26 +8,6 @@ import { authService } from '../services/auth.service';
 import { Employee } from '../types';
 import toast from 'react-hot-toast';
 
-// ==============================
-// BACKEND INTEGRATION
-// Page: Login & Signup
-//
-// API Endpoints Required:
-// 1. POST /api/auth/login
-//    - Authentication: None (Public)
-//    - Request Body: { email: string, password?: string }
-//    - Response: { success: true, data: Employee }
-// 
-// 2. POST /api/auth/signup
-//    - Authentication: None (Public)
-//    - Request Body: { name: string, email: string }
-//    - Response: { success: true, data: Employee }
-//
-// Validation rules:
-// - Email must be verified and formatted.
-// - Password rules as required.
-// ==============================
-
 interface LoginProps {
   onLoginSuccess: (user: Employee) => void;
 }
@@ -41,8 +21,6 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('••••••••');
 
-  // TODO(BACKEND):
-  // Handle form submission and forward payloads to authService API
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
@@ -75,8 +53,6 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     }
   };
 
-  // TODO(BACKEND):
-  // Quick-login logic for demo/hackathon environment
   const handleQuickLogin = async (roleEmail: string) => {
     setIsLoading(true);
     try {
@@ -92,38 +68,95 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-brand-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen w-screen overflow-hidden flex flex-col items-center justify-center p-4 relative bg-[#FFF8F0]">
+      
+      {/* Premium Layered Silk Blocks in background */}
+      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+        {/* Silk block 1: Warm Golden Sand */}
+        <motion.div 
+          animate={{
+            x: [0, 50, -20],
+            y: [0, -30, 40],
+            rotate: [0, 10, -5],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            repeatType: 'reverse',
+            ease: 'easeInOut',
+          }}
+          className="absolute -top-[10%] -left-[10%] w-[500px] h-[400px] bg-gradient-to-tr from-[#D4A373]/20 via-[#FAF3E0]/30 to-[#E9D8A6]/20 blur-[80px] rounded-full opacity-60"
+        />
+
+        {/* Silk block 2: Desert Sunset Sunset Terracotta */}
+        <motion.div 
+          animate={{
+            x: [0, -40, 30],
+            y: [0, 40, -30],
+            rotate: [0, -8, 12],
+          }}
+          transition={{
+            duration: 22,
+            repeat: Infinity,
+            repeatType: 'reverse',
+            ease: 'easeInOut',
+          }}
+          className="absolute -bottom-[15%] -right-[10%] w-[600px] h-[450px] bg-gradient-to-br from-[#B5654A]/10 via-[#FAF3E0]/20 to-[#C98C3A]/15 blur-[90px] rounded-full opacity-50"
+        />
+
+        {/* Silk block 3: Oasis Green Tint */}
+        <motion.div 
+          animate={{
+            x: [0, 30, -30],
+            y: [0, 30, -40],
+            scale: [1, 1.1, 0.95],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: 'reverse',
+            ease: 'easeInOut',
+          }}
+          className="absolute top-[40%] right-[15%] w-[350px] h-[350px] bg-gradient-to-tr from-[#7A8450]/8 via-[#FAF3E0]/15 to-[#D4A373]/10 blur-[75px] rounded-full opacity-40"
+        />
+      </div>
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-md bg-white border border-brand-border rounded-2xl shadow-xl p-8 flex flex-col gap-6"
+        transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+        className="w-full max-w-md bg-white/75 backdrop-blur-2xl border border-[#D4A373]/30 rounded-[24px] shadow-[0_25px_60px_-15px_rgba(78,52,46,0.12)] p-8 md:p-10 flex flex-col gap-8 relative z-10"
       >
         {/* Brand Header */}
-        <div className="flex flex-col items-center text-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-brand-primary flex items-center justify-center text-white shadow-md shadow-brand-primary/10">
-            <div className="w-5 h-5 bg-white rounded-sm rotate-45"></div>
+        <div className="flex flex-col items-center text-center gap-3">
+          <motion.div 
+            whileHover={{ rotate: 45, scale: 1.1 }}
+            className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#D4A373] to-[#C98C3A] flex items-center justify-center text-white shadow-xl shadow-[#C98C3A]/20"
+          >
+            <div className="w-5 h-5 bg-white rounded-md rotate-45" />
+          </motion.div>
+          <div className="flex flex-col gap-1 mt-1">
+            <h1 className="text-2xl font-black tracking-tight text-[#4E342E] font-sans">
+              {isSignup ? 'Create Account' : 'Sign in to AssetFlow'}
+            </h1>
+            <p className="text-xs text-[#7F5539]/80 font-semibold max-w-xs leading-relaxed">
+              {isSignup 
+                ? 'Join the luxury physical assets & resource planning system.' 
+                : 'Enterprise-grade physical asset lifecycles & custody engines.'
+              }
+            </p>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-brand-text">
-            {isSignup ? 'Create an Account' : 'Sign in to AssetFlow'}
-          </h1>
-          <p className="text-xs text-brand-muted max-w-xs">
-            {isSignup 
-              ? 'Join the Enterprise Asset & Resource Management ERP.' 
-              : 'Enterprise-grade physical asset lifecycle & allocation engine.'
-            }
-          </p>
         </div>
 
         {/* Input Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {isSignup && (
             <div className="relative">
-              <User className="absolute left-3.5 top-9 h-4 w-4 text-brand-muted" />
+              <User className="absolute left-4 top-[38px] h-4 w-4 text-[#7F5539]/55 z-10" />
               <Input
                 label="Full Name"
-                placeholder="Alexander Wright"
-                className="pl-10"
+                placeholder="Sarah Connor"
+                className="pl-11 bg-white/50 border-[#D4A373]/25"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -132,12 +165,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           )}
 
           <div className="relative">
-            <Mail className="absolute left-3.5 top-9 h-4 w-4 text-brand-muted" />
+            <Mail className="absolute left-4 top-[38px] h-4 w-4 text-[#7F5539]/55 z-10" />
             <Input
               type="email"
               label="Work Email Address"
-              placeholder="alex@organization.com"
-              className="pl-10"
+              placeholder="sarah@cyberdyne.com"
+              className="pl-11 bg-white/50 border-[#D4A373]/25"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -145,24 +178,24 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-brand-text/80 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-1.5 pl-0.5">
+              <label className="text-[10px] font-bold text-[#7F5539]/90 uppercase tracking-widest">
                 Password
               </label>
               {!isSignup && (
                 <Link 
                   to="/forgot-password" 
-                  className="text-xs font-semibold text-brand-primary hover:underline"
+                  className="text-[10px] font-bold text-[#C98C3A] hover:text-[#B5654A] transition-colors tracking-widest uppercase"
                 >
-                  Forgot password?
+                  Forgot?
                 </Link>
               )}
             </div>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-brand-muted" />
+              <Lock className="absolute left-4 top-[14px] h-4 w-4 text-[#7F5539]/55 z-10" />
               <input
                 type="password"
-                className="w-full pl-10 pr-3.5 py-2 text-sm bg-white border border-brand-border rounded-lg outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10 transition-all placeholder:text-gray-400"
+                className="w-full pl-11 pr-4 py-2.5 text-sm bg-white/50 backdrop-blur-xs border border-[#D4A373]/25 rounded-xl outline-none focus:border-[#C98C3A] focus:ring-4 focus:ring-[#C98C3A]/10 transition-all placeholder:text-[#7F5539]/30 text-[#4E342E] font-medium"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -174,21 +207,21 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <Button 
             type="submit" 
             isLoading={isLoading} 
-            className="w-full mt-2 font-semibold flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full mt-3 py-3 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-xl transition-all"
           >
-            {isSignup ? 'Register' : 'Access System'}
+            <span className="tracking-wider text-xs uppercase font-black">{isSignup ? 'Register' : 'Access System'}</span>
             <ArrowRight className="h-4 w-4" />
           </Button>
         </form>
 
         {/* Form Toggle */}
-        <div className="text-center text-xs text-brand-muted">
+        <div className="text-center text-xs text-[#7F5539]">
           {isSignup ? (
             <span>
               Already have an account?{' '}
               <button 
                 onClick={() => setIsSignup(false)} 
-                className="text-brand-primary font-bold hover:underline cursor-pointer"
+                className="text-[#C98C3A] font-extrabold hover:text-[#B5654A] cursor-pointer hover:underline"
               >
                 Sign In
               </button>
@@ -198,7 +231,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               Don't have an account?{' '}
               <button 
                 onClick={() => setIsSignup(true)} 
-                className="text-brand-primary font-bold hover:underline cursor-pointer"
+                className="text-[#C98C3A] font-extrabold hover:text-[#B5654A] cursor-pointer hover:underline"
               >
                 Sign up
               </button>
@@ -207,29 +240,29 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         </div>
 
         {/* Sandbox Access Shortcuts (Hackathon Special) */}
-        <div className="border-t border-brand-border pt-5 flex flex-col gap-3">
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-            <ShieldCheck className="h-4 w-4 text-brand-primary" />
+        <div className="border-t border-[#D4A373]/20 pt-6 flex flex-col gap-3">
+          <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#7F5539]/80 pl-0.5">
+            <ShieldCheck className="h-4 w-4 text-[#C98C3A]" />
             <span>Developer Fast-Pass Credentials</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => handleQuickLogin('admin@assetflow.com')}
-              className="px-2 py-1.5 text-[10px] font-bold border border-brand-border hover:border-brand-primary rounded-lg bg-gray-50 text-brand-text hover:bg-brand-primary/10 transition-all cursor-pointer truncate"
+              className="px-2 py-2 text-[9px] font-black uppercase tracking-wider border border-[#D4A373]/25 hover:border-[#C98C3A] rounded-xl bg-white/40 text-[#4E342E] hover:bg-[#C98C3A]/10 transition-all duration-300 cursor-pointer truncate shadow-xs"
               title="admin@assetflow.com"
             >
               Admin Role
             </button>
             <button
               onClick={() => handleQuickLogin('manager@assetflow.com')}
-              className="px-2 py-1.5 text-[10px] font-bold border border-brand-border hover:border-brand-primary rounded-lg bg-gray-50 text-brand-text hover:bg-brand-primary/10 transition-all cursor-pointer truncate"
+              className="px-2 py-2 text-[9px] font-black uppercase tracking-wider border border-[#D4A373]/25 hover:border-[#C98C3A] rounded-xl bg-white/40 text-[#4E342E] hover:bg-[#C98C3A]/10 transition-all duration-300 cursor-pointer truncate shadow-xs"
               title="manager@assetflow.com"
             >
               Manager Role
             </button>
             <button
               onClick={() => handleQuickLogin('employee@assetflow.com')}
-              className="px-2 py-1.5 text-[10px] font-bold border border-brand-border hover:border-brand-primary rounded-lg bg-gray-50 text-brand-text hover:bg-brand-primary/10 transition-all cursor-pointer truncate"
+              className="px-2 py-2 text-[9px] font-black uppercase tracking-wider border border-[#D4A373]/25 hover:border-[#C98C3A] rounded-xl bg-white/40 text-[#4E342E] hover:bg-[#C98C3A]/10 transition-all duration-300 cursor-pointer truncate shadow-xs"
               title="employee@assetflow.com"
             >
               Staff Role
