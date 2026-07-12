@@ -14,6 +14,7 @@ from app.schemas.allocation import (
     AllocationCreate, AllocationReturn, AllocationResponse,
     TransferCreate, TransferDecision, TransferResponse
 )
+from app.services.notifications import create_notification, log_activity
 
 router = APIRouter()
 
@@ -56,6 +57,17 @@ def allocate_asset(
     try:
         db.commit()
         db.refresh(new_allocation)
+        
+        # Notify the assigned employee
+        create_notification(
+            db=db,
+            user_id=employee.id,
+            title="Asset Allocated",
+            message=f"Asset {asset.name} ({asset.asset_tag}) has been allocated to you."
+        )
+        log_activity(db, current_user.id, "ALLOCATE_ASSET", "Asset", asset.id, f"Allocated to {employee.name}")
+        db.commit()
+        
         return new_allocation
     except IntegrityError:
         db.rollback()
@@ -63,6 +75,9 @@ def allocate_asset(
             status_code=status.HTTP_409_CONFLICT,
             detail="This asset is already actively allocated."
         )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
 
 @router.post("/assets/{id}/return", response_model=AllocationResponse)
@@ -93,9 +108,17 @@ def return_asset(
     asset.current_holder_type = None
     asset.current_holder_id = None
 
-    db.commit()
-    db.refresh(allocation)
-    return allocation
+    try:
+        db.commit()
+        db.refresh(allocation)
+        
+        log_activity(db, current_user.id, "RETURN_ASSET", "Asset", asset.id, f"Returned by {allocation.employee_id}")
+        db.commit()
+        
+        return allocation
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
 
 @router.post("/assets/{id}/transfer", response_model=TransferResponse, status_code=status.HTTP_201_CREATED)
@@ -116,6 +139,9 @@ def request_transfer(
     if not allocation:
         raise HTTPException(status_code=404, detail="No active allocation found for this asset to transfer.")
         
+    if allocation.employee_id != current_user.id and current_user.role not in ["Admin", "Asset Manager"]:
+        raise HTTPException(status_code=403, detail="Not authorized to transfer this asset.")
+        
     recipient = db.query(Employee).filter(Employee.id == transfer_in.to_employee_id).first()
     if not recipient:
         raise HTTPException(status_code=404, detail="Recipient employee not found")
@@ -130,9 +156,20 @@ def request_transfer(
     )
 
     db.add(new_transfer)
-    db.commit()
-    db.refresh(new_transfer)
-    return new_transfer
+    try:
+        db.commit()
+        db.refresh(new_transfer)
+        
+        # Notify admins/managers about the request
+        managers = db.query(Employee).filter(Employee.role.in_(["Admin", "Asset Manager"])).all()
+        for mgr in managers:
+            create_notification(db, mgr.id, "Transfer Request", f"Transfer requested for asset {id}")
+        db.commit()
+        
+        return new_transfer
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
 
 @router.patch("/transfers/{id}", response_model=TransferResponse)
@@ -192,15 +229,30 @@ def decide_transfer(
 
         try:
             db.commit()
+            
+            # Notifications
+            create_notification(db, transfer.to_employee_id, "Transfer Approved", f"Asset {asset.name} transferred to you.")
+            create_notification(db, transfer.from_employee_id, "Transfer Approved", f"Asset {asset.name} transferred away from you.")
+            db.commit()
+            
         except IntegrityError:
             db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Database conflict while approving transfer."
             )
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail="An internal server error occurred.")
     else:
-        # Rejected, just commit the transfer status change
-        db.commit()
+        # Rejected
+        try:
+            db.commit()
+            create_notification(db, transfer.from_employee_id, "Transfer Rejected", f"Transfer for asset {transfer.asset_id} was rejected.")
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
     db.refresh(transfer)
     return transfer

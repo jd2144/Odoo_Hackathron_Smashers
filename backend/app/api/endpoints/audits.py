@@ -43,9 +43,13 @@ def start_audit_cycle(
         )
         db.add(item)
         
-    db.commit()
-    db.refresh(new_cycle)
-    return new_cycle
+    try:
+        db.commit()
+        db.refresh(new_cycle)
+        return new_cycle
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
 
 @router.post("/{id}/scan", response_model=AuditItemResponse)
@@ -75,9 +79,13 @@ def scan_audit_item(
     item.scan_date = func.now()
     item.notes = action_in.notes
 
-    db.commit()
-    db.refresh(item)
-    return item
+    try:
+        db.commit()
+        db.refresh(item)
+        return item
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
 
 @router.post("/{id}/review", response_model=AuditItemResponse)
@@ -105,9 +113,13 @@ def review_audit_item_as_missing(
     item.status = "Missing"
     item.notes = action_in.notes
 
-    db.commit()
-    db.refresh(item)
-    return item
+    try:
+        db.commit()
+        db.refresh(item)
+        return item
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
 
 @router.post("/{id}/close", response_model=AuditCycleResponse)
@@ -137,6 +149,10 @@ def close_audit_cycle(
         if asset:
             asset.status = "Lost"
 
-    db.commit()
-    db.refresh(cycle)
-    return cycle
+    try:
+        db.commit()
+        db.refresh(cycle)
+        return cycle
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")

@@ -10,6 +10,7 @@ from app.models.asset import Asset
 from app.models.booking import AssetBooking
 from app.models.user import Employee
 from app.schemas.booking import BookingCreate, BookingResponse
+from app.services.notifications import log_activity
 
 router = APIRouter()
 
@@ -61,8 +62,14 @@ def create_booking(
     )
 
     db.add(new_booking)
-    db.commit()
-    db.refresh(new_booking)
+    try:
+        db.commit()
+        db.refresh(new_booking)
+        log_activity(db, current_user.id, "CREATE_BOOKING", "AssetBooking", new_booking.id, f"Booked asset {booking_in.asset_id}")
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
     # Note: Asset status remains unchanged until the booking window begins.
     # Future enhancement: A background job to mark asset as "In Use" when booking starts.
@@ -73,8 +80,8 @@ def create_booking(
 @router.get("", response_model=List[BookingResponse])
 def list_bookings(
     asset_id: str = Query(None, description="Filter by asset ID"),
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db),
     current_user: Employee = Depends(get_current_active_user)
 ):

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
+from sqlalchemy.sql import func
 import uuid
 from typing import List
 
@@ -11,6 +12,7 @@ from app.models.allocation import AssetAllocation
 from app.models.booking import AssetBooking
 from app.models.user import Employee
 from app.schemas.maintenance import MaintenanceCreate, MaintenanceUpdate, MaintenanceResponse
+from app.services.notifications import create_notification, log_activity
 
 router = APIRouter()
 
@@ -36,10 +38,15 @@ def create_maintenance_ticket(
     )
 
     db.add(new_record)
-    db.commit()
-    db.refresh(new_record)
-
-    return new_record
+    try:
+        db.commit()
+        db.refresh(new_record)
+        log_activity(db, current_user.id, "CREATE_MAINTENANCE", "MaintenanceRecord", new_record.id, f"Ticket created for asset {asset.id}")
+        db.commit()
+        return new_record
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
 
 
 @router.patch("/{id}", response_model=MaintenanceResponse)
@@ -81,6 +88,11 @@ def update_maintenance_ticket(
             raise HTTPException(status_code=403, detail="Not authorized to assign maintenance.")
         if not update_in.assigned_to_id:
             raise HTTPException(status_code=400, detail="Must provide assigned_to_id when assigning.")
+            
+        technician = db.query(Employee).filter(Employee.id == update_in.assigned_to_id).first()
+        if not technician:
+            raise HTTPException(status_code=404, detail="Assigned technician/employee not found.")
+            
         record.assigned_to_id = update_in.assigned_to_id
 
     if update_in.status in ["In Progress", "Resolved"]:
@@ -92,6 +104,29 @@ def update_maintenance_ticket(
     asset = db.query(Asset).filter(Asset.id == record.asset_id).first()
 
     if update_in.status == "Approved":
+        # Block if asset is allocated
+        active_alloc = db.query(AssetAllocation).filter(
+            AssetAllocation.asset_id == record.asset_id,
+            AssetAllocation.status == "Active"
+        ).first()
+        if active_alloc:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Asset must be returned from its active allocation before maintenance can be approved."
+            )
+            
+        # Block if there is another open maintenance ticket for this asset
+        open_ticket = db.query(MaintenanceRecord).filter(
+            MaintenanceRecord.asset_id == record.asset_id,
+            MaintenanceRecord.status.in_(["Approved", "Assigned", "In Progress"]),
+            MaintenanceRecord.id != record.id
+        ).first()
+        if open_ticket:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Asset already has an open maintenance ticket."
+            )
+            
         asset.status = "Under Maintenance"
 
     if update_in.status == "Resolved":
@@ -121,6 +156,18 @@ def update_maintenance_ticket(
         else:
             asset.status = "Available"
 
-    db.commit()
-    db.refresh(record)
-    return record
+    try:
+        db.commit()
+        db.refresh(record)
+        
+        # Notifications
+        if update_in.status == "Assigned" and record.assigned_to_id:
+            create_notification(db, record.assigned_to_id, "Maintenance Assigned", f"You have been assigned to maintenance ticket {record.id}")
+            db.commit()
+            
+        log_activity(db, current_user.id, f"MAINTENANCE_{update_in.status.upper()}", "MaintenanceRecord", record.id)
+        
+        return record
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")
