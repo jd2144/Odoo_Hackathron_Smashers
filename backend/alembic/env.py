@@ -30,6 +30,7 @@ from app.models.allocation import AssetAllocation, AssetTransfer
 from app.models.booking import AssetBooking
 from app.models.maintenance import MaintenanceRecord
 from app.models.audit import AuditCycle, AuditItem
+from app.models.notification import Notification, ActivityLog
 
 target_metadata = Base.metadata
 
