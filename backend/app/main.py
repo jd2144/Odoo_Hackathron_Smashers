@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.endpoints import auth, assets, departments, categories, allocations, bookings, maintenance, audits, reports, notifications
+from app.api.endpoints import auth, assets, departments, categories, allocations, bookings, maintenance, audits, reports, notifications, cron
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -29,6 +29,7 @@ app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(notifications.router, prefix="/api/notifications", tags=["notifications"])
 app.include_router(departments.router, prefix="/api/departments", tags=["departments"])
 app.include_router(categories.router, prefix="/api/categories", tags=["categories"])
+app.include_router(cron.router, prefix="/api/cron", tags=["cron"])
 
 @app.get("/")
 def root():

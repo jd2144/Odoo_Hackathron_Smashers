@@ -31,3 +31,16 @@ class DepreciationReportResponse(BaseModel):
     @field_serializer("total_acquisition_cost", "total_current_value")
     def serialize_decimal(self, value: Decimal) -> float:
         return float(value)
+
+class DepartmentAllocationSummary(BaseModel):
+    department_name: str
+    active_allocations_count: int
+
+class MaintenanceFrequencyItem(BaseModel):
+    category_name: str
+    tickets_count: int
+
+class BookingUtilizationItem(BaseModel):
+    asset_name: str
+    total_booked_hours: float
+    utilization_rate: float # booked hours / total hours in context (e.g. 720 hours for 30 days)

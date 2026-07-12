@@ -15,7 +15,7 @@ class Asset(Base):
     current_value = Column(DECIMAL(12, 2))
     condition = Column(String(30))  # New, Good, Fair, Poor, Broken
     location = Column(String(100), nullable=False)
-    status = Column(String(30), default="Available")  # Available, Allocated, Under Maintenance, Lost, Decommissioned
+    status = Column(String(30), default="Available")  # Available, Allocated, Reserved, Under Maintenance, Lost, Retired, Disposed
     shared_bookable = Column(Boolean, default=False)
     qr_code_url = Column(Text)
     

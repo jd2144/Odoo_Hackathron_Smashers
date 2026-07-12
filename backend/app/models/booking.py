@@ -14,6 +14,7 @@ class AssetBooking(Base):
     status = Column(String(20), default="Approved")  # Pending, Approved, Cancelled
     purpose = Column(String(255))
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    reminder_sent_at = Column(DateTime(timezone=True), nullable=True)
 
     asset = relationship("Asset")
     employee = relationship("Employee")

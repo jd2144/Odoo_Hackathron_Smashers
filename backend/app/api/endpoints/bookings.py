@@ -9,8 +9,8 @@ from app.api.deps import get_db, get_current_active_user
 from app.models.asset import Asset
 from app.models.booking import AssetBooking
 from app.models.user import Employee
-from app.schemas.booking import BookingCreate, BookingResponse
-from app.services.notifications import log_activity
+from app.schemas.booking import BookingCreate, BookingResponse, BookingUpdate
+from app.services.notifications import log_activity, create_notification
 
 router = APIRouter()
 
@@ -95,3 +95,64 @@ def list_bookings(
         
     bookings = query.order_by(AssetBooking.start_time.asc()).offset(skip).limit(limit).all()
     return bookings
+
+@router.patch("/{id}", response_model=BookingResponse)
+def update_booking(
+    id: str,
+    booking_in: BookingUpdate,
+    db: Session = Depends(get_db),
+    current_user: Employee = Depends(get_current_active_user)
+):
+    """
+    Cancel or reschedule a booking.
+    """
+    booking = db.query(AssetBooking).filter(AssetBooking.id == id).with_for_update().first()
+    
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+        
+    if booking.employee_id != current_user.id and current_user.role not in ["Admin", "Asset Manager"]:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this booking")
+
+    new_start = booking_in.start_time or booking.start_time
+    new_end = booking_in.end_time or booking.end_time
+    
+    if booking_in.start_time or booking_in.end_time:
+        # Prevent rescheduling to the past
+        if new_start < datetime.utcnow() and new_start != booking.start_time:
+            raise HTTPException(status_code=400, detail="Cannot schedule a booking in the past")
+            
+        # Overlap check
+        overlapping_booking = db.query(AssetBooking).filter(
+            AssetBooking.asset_id == booking.asset_id,
+            AssetBooking.id != booking.id,
+            AssetBooking.status == "Approved",
+            AssetBooking.start_time < new_end,
+            AssetBooking.end_time > new_start
+        ).first()
+
+        if overlapping_booking:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The asset is already booked during this time period."
+            )
+            
+        booking.start_time = new_start
+        booking.end_time = new_end
+
+    if booking_in.status:
+        if booking_in.status not in ["Approved", "Cancelled"]:
+            raise HTTPException(status_code=400, detail="Status must be Approved or Cancelled")
+        booking.status = booking_in.status
+
+    try:
+        db.commit()
+        db.refresh(booking)
+        log_activity(db, current_user.id, "UPDATE_BOOKING", "AssetBooking", booking.id)
+        if booking.status == "Cancelled":
+            create_notification(db, booking.employee_id, "Booking Cancelled", f"Your booking {booking.id} was cancelled.")
+        db.commit()
+        return booking
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An internal server error occurred.")

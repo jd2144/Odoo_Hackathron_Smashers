@@ -16,3 +16,16 @@ class EmployeeResponse(EmployeeBase):
 
     class Config:
         from_attributes = True
+
+class UserSignup(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    department_id: Optional[str] = None
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str

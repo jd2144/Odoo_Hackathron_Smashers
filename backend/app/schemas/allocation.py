@@ -3,7 +3,9 @@ from typing import Optional
 from datetime import datetime
 
 class AllocationCreate(BaseModel):
-    employee_id: str
+    employee_id: Optional[str] = None
+    department_id: Optional[str] = None
+    expected_return_date: Optional[datetime] = None
     notes: Optional[str] = None
 
 class AllocationReturn(BaseModel):
@@ -12,9 +14,11 @@ class AllocationReturn(BaseModel):
 class AllocationResponse(BaseModel):
     id: str
     asset_id: str
-    employee_id: str
+    employee_id: Optional[str] = None
+    department_id: Optional[str] = None
     allocated_by_id: str
     allocation_date: datetime
+    expected_return_date: Optional[datetime] = None
     return_date: Optional[datetime] = None
     status: str
     notes: Optional[str] = None

@@ -14,6 +14,18 @@ class BookingCreate(BaseModel):
             raise ValueError('start_time must be before end_time')
         return self
 
+class BookingUpdate(BaseModel):
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    status: Optional[str] = None # e.g. "Cancelled"
+    
+    @model_validator(mode='after')
+    def check_dates(self) -> 'BookingUpdate':
+        if self.start_time and self.end_time:
+            if self.start_time >= self.end_time:
+                raise ValueError('start_time must be before end_time')
+        return self
+
 class BookingResponse(BaseModel):
     id: str
     asset_id: str
@@ -23,6 +35,7 @@ class BookingResponse(BaseModel):
     status: str
     purpose: Optional[str] = None
     created_at: datetime
+    reminder_sent_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

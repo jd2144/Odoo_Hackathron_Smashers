@@ -28,7 +28,7 @@ def create_department(
     *,
     db: Session = Depends(get_db),
     department_in: DepartmentCreate,
-    current_user = Depends(get_current_active_manager_or_admin)
+    current_user = Depends(get_current_active_admin)
 ):
     """
     Create new department.

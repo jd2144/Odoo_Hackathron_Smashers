@@ -10,6 +10,7 @@ from app.api.deps import get_db, get_current_active_user, get_current_active_man
 from app.models.asset import Asset
 from app.models.allocation import AssetAllocation, AssetTransfer
 from app.models.user import Employee
+from app.models.department import Department
 from app.schemas.allocation import (
     AllocationCreate, AllocationReturn, AllocationResponse,
     TransferCreate, TransferDecision, TransferResponse
@@ -35,15 +36,40 @@ def allocate_asset(
     if asset.status not in ["Available", "Returned"]:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Asset is not available for allocation. Current status: {asset.status}")
 
-    employee = db.query(Employee).filter(Employee.id == allocation_in.employee_id).first()
-    if not employee:
-        raise HTTPException(status_code=404, detail="Employee not found")
+    if allocation_in.employee_id and allocation_in.department_id:
+        raise HTTPException(status_code=400, detail="Cannot allocate to both employee and department.")
+    if not allocation_in.employee_id and not allocation_in.department_id:
+        raise HTTPException(status_code=400, detail="Must allocate to either an employee or a department.")
+
+    if allocation_in.employee_id:
+        employee = db.query(Employee).filter(Employee.id == allocation_in.employee_id).first()
+        if not employee:
+            raise HTTPException(status_code=404, detail="Employee not found")
+        holder_type = "Employee"
+        holder_id = employee.id
+        holder_name = employee.name
+        notification_target_id = employee.id
+    else:
+        department = db.query(Department).filter(Department.id == allocation_in.department_id).first()
+        if not department:
+            raise HTTPException(status_code=404, detail="Department not found")
+        holder_type = "Department"
+        holder_id = department.id
+        holder_name = department.name
+        # Notify the department head if they exist
+        dept_head = db.query(Employee).filter(
+            Employee.department_id == department.id,
+            Employee.role == "Department Head"
+        ).first()
+        notification_target_id = dept_head.id if dept_head else None
 
     new_allocation = AssetAllocation(
         id=f"alloc-{uuid.uuid4().hex[:8]}",
         asset_id=id,
         employee_id=allocation_in.employee_id,
+        department_id=allocation_in.department_id,
         allocated_by_id=current_user.id,
+        expected_return_date=allocation_in.expected_return_date,
         notes=allocation_in.notes
     )
 
@@ -51,21 +77,22 @@ def allocate_asset(
     
     # Update asset state
     asset.status = "Allocated"
-    asset.current_holder_type = "Employee"
-    asset.current_holder_id = employee.id
+    asset.current_holder_type = holder_type
+    asset.current_holder_id = holder_id
 
     try:
         db.commit()
         db.refresh(new_allocation)
         
-        # Notify the assigned employee
-        create_notification(
-            db=db,
-            user_id=employee.id,
-            title="Asset Allocated",
-            message=f"Asset {asset.name} ({asset.asset_tag}) has been allocated to you."
-        )
-        log_activity(db, current_user.id, "ALLOCATE_ASSET", "Asset", asset.id, f"Allocated to {employee.name}")
+        # Notify the assigned employee or department head
+        if notification_target_id:
+            create_notification(
+                db=db,
+                user_id=notification_target_id,
+                title="Asset Allocated",
+                message=f"Asset {asset.name} ({asset.asset_tag}) has been allocated to your {holder_type.lower()}."
+            )
+        log_activity(db, current_user.id, "ALLOCATE_ASSET", "Asset", asset.id, f"Allocated to {holder_name}")
         db.commit()
         
         return new_allocation
@@ -112,7 +139,8 @@ def return_asset(
         db.commit()
         db.refresh(allocation)
         
-        log_activity(db, current_user.id, "RETURN_ASSET", "Asset", asset.id, f"Returned by {allocation.employee_id}")
+        holder_desc = allocation.employee_id or allocation.department_id
+        log_activity(db, current_user.id, "RETURN_ASSET", "Asset", asset.id, f"Returned by {holder_desc}")
         db.commit()
         
         return allocation

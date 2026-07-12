@@ -4,8 +4,13 @@ from datetime import datetime
 
 class AuditCycleCreate(BaseModel):
     name: str
+    auditor_ids: Optional[List[str]] = []
+    scope_department_id: Optional[str] = None
+    scope_category_id: Optional[str] = None
+    scope_location: Optional[str] = None
 
 class AuditItemAction(BaseModel):
+    status: Optional[str] = "Scanned" # Scanned, Missing, Damaged
     notes: Optional[str] = None
 
 class AuditItemResponse(BaseModel):
@@ -27,6 +32,9 @@ class AuditCycleResponse(BaseModel):
     start_date: datetime
     end_date: Optional[datetime] = None
     status: str
+    scope_department_id: Optional[str] = None
+    scope_category_id: Optional[str] = None
+    scope_location: Optional[str] = None
     items: List[AuditItemResponse] = []
 
     class Config:

@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from typing import List
 import uuid
 
-from app.api.deps import get_db, get_current_active_user, get_current_active_manager_or_admin
+from app.api.deps import get_db, get_current_active_user, get_current_active_admin
 from app.models.category import Category
 from app.schemas.category import CategoryCreate, CategoryResponse
 
@@ -28,7 +28,7 @@ def create_category(
     *,
     db: Session = Depends(get_db),
     category_in: CategoryCreate,
-    current_user = Depends(get_current_active_manager_or_admin)
+    current_user = Depends(get_current_active_admin)
 ):
     """
     Create new category.
