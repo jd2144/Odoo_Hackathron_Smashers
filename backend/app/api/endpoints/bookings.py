@@ -119,7 +119,8 @@ def update_booking(
     
     if booking_in.start_time or booking_in.end_time:
         # Prevent rescheduling to the past
-        if new_start < datetime.utcnow() and new_start != booking.start_time:
+        now_compare = datetime.now(new_start.tzinfo) if new_start.tzinfo else datetime.utcnow()
+        if new_start < now_compare and new_start != booking.start_time:
             raise HTTPException(status_code=400, detail="Cannot schedule a booking in the past")
             
         # Overlap check
