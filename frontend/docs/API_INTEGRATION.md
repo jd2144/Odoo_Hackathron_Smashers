@@ -1,7 +1,7 @@
-# AssetFlow – Enterprise Asset & Resource Management System
+# Aureon ERP – Enterprise Asset & Resource Management System
 ## Master Backend Integration Manual
 
-This document provides a highly detailed specification for the backend services, APIs, database structures, and authentication protocols required to integrate with the completed AssetFlow frontend.
+This document provides a highly detailed specification for the backend services, APIs, database structures, and authentication protocols required to integrate with the completed Aureon ERP frontend.
 
 ---
 

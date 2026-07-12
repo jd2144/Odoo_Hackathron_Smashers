@@ -12,6 +12,7 @@ import {
 import { Employee, Notification, UserRole } from '../../types';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { APP } from '../../constants/app';
 
 interface NavbarProps {
   user: Employee | null;
@@ -61,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Left section: Breadcrumb hierarchy with serif styled root */}
       <div className="flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-widest text-sahara-clay/60">
         <Link to="/" className="hover:text-sahara-gold transition-colors font-black text-sahara-coffee">
-          AssetFlow
+          {APP.NAME}
         </Link>
         {pathnames.length === 0 && (
           <>

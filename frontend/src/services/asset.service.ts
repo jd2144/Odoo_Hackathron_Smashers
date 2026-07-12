@@ -417,13 +417,13 @@ export const assetService = {
       setTimeout(() => {
         const assets = MockDatabase.getAssets();
         
-        // Generate asset tag, e.g. AF-0009
+        // Generate asset tag, e.g. AE-0009
         const lastNum = assets.reduce((max, a) => {
-          const tagNum = parseInt(a.assetTag.replace('AF-', ''), 10);
+          const tagNum = parseInt(a.assetTag.replace('AE-', ''), 10);
           return isNaN(tagNum) ? max : Math.max(max, tagNum);
         }, 0);
         const nextNum = lastNum + 1;
-        const assetTag = `AF-${String(nextNum).padStart(4, '0')}`;
+        const assetTag = `AE-${String(nextNum).padStart(4, '0')}`;
 
         const newAsset: Asset = {
           ...assetData,

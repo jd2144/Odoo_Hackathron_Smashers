@@ -16,7 +16,7 @@ import {
 
 // Helper to get from local storage or set default
 const getOrInit = <T>(key: string, initial: T): T => {
-  const data = localStorage.getItem(`assetflow_${key}`);
+  const data = localStorage.getItem(`aureon_${key}`);
   if (data) {
     try {
       return JSON.parse(data) as T;
@@ -24,7 +24,7 @@ const getOrInit = <T>(key: string, initial: T): T => {
       return initial;
     }
   }
-  localStorage.setItem(`assetflow_${key}`, JSON.stringify(initial));
+  localStorage.setItem(`aureon_${key}`, JSON.stringify(initial));
   return initial;
 };
 
@@ -75,27 +75,29 @@ const INITIAL_CATEGORIES: AssetCategory[] = [
 ];
 
 const INITIAL_EMPLOYEES: Employee[] = [
-  { id: 'emp-1', name: 'Alexander Wright', email: 'admin@assetflow.com', role: 'Admin', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&fit=crop&q=80' },
-  { id: 'emp-2', name: 'Sarah Connor', email: 'manager@assetflow.com', role: 'Asset Manager', status: 'Active', departmentId: 'dep-2', avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&fit=crop&q=80' },
-  { id: 'emp-3', name: 'Marcus Aurelius', email: 'it-head@assetflow.com', role: 'Department Head', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&fit=crop&q=80' },
-  { id: 'emp-4', name: 'David Miller', email: 'ops-head@assetflow.com', role: 'Department Head', status: 'Active', departmentId: 'dep-2', avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&fit=crop&q=80' },
-  { id: 'emp-5', name: 'Elena Rostova', email: 'marketing-head@assetflow.com', role: 'Department Head', status: 'Active', departmentId: 'dep-3', avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&fit=crop&q=80' },
-  { id: 'emp-6', name: 'Clara Oswald', email: 'hr-head@assetflow.com', role: 'Department Head', status: 'Active', departmentId: 'dep-4', avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&fit=crop&q=80' },
-  { id: 'emp-7', name: 'John Doe', email: 'employee@assetflow.com', role: 'Employee', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&fit=crop&q=80' },
-  { id: 'emp-8', name: 'Jane Smith', email: 'janesmith@assetflow.com', role: 'Employee', status: 'Active', departmentId: 'dep-3', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&fit=crop&q=80' },
-  { id: 'emp-9', name: 'Robert Chen', email: 'rchen@assetflow.com', role: 'Employee', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&fit=crop&q=80' },
-  { id: 'emp-10', name: 'William Blake', email: 'wblake@assetflow.com', role: 'Employee', status: 'Inactive', departmentId: 'dep-2', avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=80&fit=crop&q=80' }
+  { id: 'emp-1', name: 'Alexander Wright', email: 'admin@aureonerp.com', username: 'admin', password: 'password', role: 'Admin', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-2', name: 'Sarah Connor', email: 'manager@aureonerp.com', username: 'manager', password: 'password', role: 'Asset Manager', status: 'Active', departmentId: 'dep-2', avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-3', name: 'Marcus Aurelius', email: 'it-head@aureonerp.com', username: 'ithead', password: 'password', role: 'Department Head', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-4', name: 'David Miller', email: 'ops-head@aureonerp.com', username: 'opshead', password: 'password', role: 'Department Head', status: 'Active', departmentId: 'dep-2', avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-5', name: 'Elena Rostova', email: 'marketing-head@aureonerp.com', username: 'mktghead', password: 'password', role: 'Department Head', status: 'Active', departmentId: 'dep-3', avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-6', name: 'Clara Oswald', email: 'hr-head@aureonerp.com', username: 'hrhead', password: 'password', role: 'Department Head', status: 'Active', departmentId: 'dep-4', avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-7', name: 'John Doe', email: 'employee@aureonerp.com', username: 'employee', password: 'password', role: 'Employee', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-8', name: 'Jane Smith', email: 'janesmith@aureonerp.com', username: 'janesmith', password: 'password', role: 'Employee', status: 'Active', departmentId: 'dep-3', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-9', name: 'Robert Chen', email: 'rchen@aureonerp.com', username: 'rchen', password: 'password', role: 'Employee', status: 'Active', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-10', name: 'William Blake', email: 'wblake@aureonerp.com', username: 'wblake', password: 'password', role: 'Employee', status: 'Inactive', departmentId: 'dep-2', avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=80&fit=crop&q=80', isApproved: true },
+  { id: 'emp-11', name: 'Thomas Anderson', email: 'neo@matrix.org', username: 'neo', password: 'password', role: 'Employee', requestedRole: 'Asset Manager', status: 'Pending Approval', departmentId: 'dep-1', avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&fit=crop&q=80', isApproved: false, registrationDate: '2026-07-11T10:00:00Z', estimatedReviewTime: '24 hours' },
+  { id: 'emp-12', name: 'Hal Jordan', email: 'greenlantern@oa.org', username: 'lantern', password: 'password', role: 'Employee', requestedRole: 'Department Head', status: 'Rejected', departmentId: 'dep-2', avatarUrl: 'https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=80&fit=crop&q=80', isApproved: false, registrationDate: '2026-07-10T12:00:00Z', rejectionReason: 'Requested Head position but department already has David Miller assigned as active head. Please re-submit requesting Employee role.' }
 ];
 
 const INITIAL_ASSETS: Asset[] = [
-  { id: 'ast-1', name: 'MacBook Pro 16" M3 Max', categoryId: 'cat-1', assetTag: 'AF-0001', serialNumber: 'C02F1234Q05D', acquisitionDate: '2025-02-15', acquisitionCost: 3499, condition: 'New', location: 'IT Lab Rack A', sharedBookable: false, status: 'Allocated', currentHolderId: 'emp-7', currentHolderType: 'Employee', expectedReturnDate: '2026-07-20', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0001' },
-  { id: 'ast-2', name: 'Dell XPS 15 9530', categoryId: 'cat-1', assetTag: 'AF-0002', serialNumber: 'DELL-889012-XPS', acquisitionDate: '2025-03-10', acquisitionCost: 1999, condition: 'Good', location: 'HQ Store Room', sharedBookable: false, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0002' },
-  { id: 'ast-3', name: 'iPhone 15 Pro 256GB', categoryId: 'cat-1', assetTag: 'AF-0003', serialNumber: 'DNPGW123QW12', acquisitionDate: '2025-01-20', acquisitionCost: 1099, condition: 'Good', location: 'IT Head Office', sharedBookable: false, status: 'Allocated', currentHolderId: 'emp-3', currentHolderType: 'Employee', expectedReturnDate: '2026-06-15', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0003' }, // Overdue return
-  { id: 'ast-4', name: 'Ergonomic Desk Chair Steelcase Gesture', categoryId: 'cat-2', assetTag: 'AF-0004', serialNumber: 'STEEL-GEST-7711', acquisitionDate: '2025-01-05', acquisitionCost: 1250, condition: 'Good', location: 'Engineering Bay 3', sharedBookable: false, status: 'Allocated', currentHolderId: 'dep-1', currentHolderType: 'Department', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0004' },
-  { id: 'ast-5', name: 'Tesla Model 3 Shared Car', categoryId: 'cat-3', assetTag: 'AF-0005', serialNumber: '5YJ3E1EBXLF12345', acquisitionDate: '2025-01-15', acquisitionCost: 42000, condition: 'Good', location: 'Parking Space P12', sharedBookable: true, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0005' },
-  { id: 'ast-6', name: 'Boardroom Alpha (AV Enabled)', categoryId: 'cat-4', assetTag: 'AF-0006', serialNumber: 'ROOM-ALPHA-2F', acquisitionDate: '2025-01-01', acquisitionCost: 15000, condition: 'New', location: 'Building A, Floor 2', sharedBookable: true, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0006' },
-  { id: 'ast-7', name: 'Podcast & Media Studio', categoryId: 'cat-4', assetTag: 'AF-0007', serialNumber: 'ROOM-STUDIO-1F', acquisitionDate: '2025-01-05', acquisitionCost: 8000, condition: 'Good', location: 'Building B, Floor 1', sharedBookable: true, status: 'Under Maintenance', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0007' },
-  { id: 'ast-8', name: 'iPad Pro 12.9" M2', categoryId: 'cat-1', assetTag: 'AF-0008', serialNumber: 'DLXGW778QX12', acquisitionDate: '2025-04-01', acquisitionCost: 1199, condition: 'Good', location: 'Marketing Tech Drawer', sharedBookable: false, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AF-0008' }
+  { id: 'ast-1', name: 'MacBook Pro 16" M3 Max', categoryId: 'cat-1', assetTag: 'AE-0001', serialNumber: 'C02F1234Q05D', acquisitionDate: '2025-02-15', acquisitionCost: 3499, condition: 'New', location: 'IT Lab Rack A', sharedBookable: false, status: 'Allocated', currentHolderId: 'emp-7', currentHolderType: 'Employee', expectedReturnDate: '2026-07-20', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0001' },
+  { id: 'ast-2', name: 'Dell XPS 15 9530', categoryId: 'cat-1', assetTag: 'AE-0002', serialNumber: 'DELL-889012-XPS', acquisitionDate: '2025-03-10', acquisitionCost: 1999, condition: 'Good', location: 'HQ Store Room', sharedBookable: false, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0002' },
+  { id: 'ast-3', name: 'iPhone 15 Pro 256GB', categoryId: 'cat-1', assetTag: 'AE-0003', serialNumber: 'DNPGW123QW12', acquisitionDate: '2025-01-20', acquisitionCost: 1099, condition: 'Good', location: 'IT Head Office', sharedBookable: false, status: 'Allocated', currentHolderId: 'emp-3', currentHolderType: 'Employee', expectedReturnDate: '2026-06-15', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0003' }, // Overdue return
+  { id: 'ast-4', name: 'Ergonomic Desk Chair Steelcase Gesture', categoryId: 'cat-2', assetTag: 'AE-0004', serialNumber: 'STEEL-GEST-7711', acquisitionDate: '2025-01-05', acquisitionCost: 1250, condition: 'Good', location: 'Engineering Bay 3', sharedBookable: false, status: 'Allocated', currentHolderId: 'dep-1', currentHolderType: 'Department', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0004' },
+  { id: 'ast-5', name: 'Tesla Model 3 Shared Car', categoryId: 'cat-3', assetTag: 'AE-0005', serialNumber: '5YJ3E1EBXLF12345', acquisitionDate: '2025-01-15', acquisitionCost: 42000, condition: 'Good', location: 'Parking Space P12', sharedBookable: true, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0005' },
+  { id: 'ast-6', name: 'Boardroom Alpha (AV Enabled)', categoryId: 'cat-4', assetTag: 'AE-0006', serialNumber: 'ROOM-ALPHA-2F', acquisitionDate: '2025-01-01', acquisitionCost: 15000, condition: 'New', location: 'Building A, Floor 2', sharedBookable: true, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0006' },
+  { id: 'ast-7', name: 'Podcast & Media Studio', categoryId: 'cat-4', assetTag: 'AE-0007', serialNumber: 'ROOM-STUDIO-1F', acquisitionDate: '2025-01-05', acquisitionCost: 8000, condition: 'Good', location: 'Building B, Floor 1', sharedBookable: true, status: 'Under Maintenance', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0007' },
+  { id: 'ast-8', name: 'iPad Pro 12.9" M2', categoryId: 'cat-1', assetTag: 'AE-0008', serialNumber: 'DLXGW778QX12', acquisitionDate: '2025-04-01', acquisitionCost: 1199, condition: 'Good', location: 'Marketing Tech Drawer', sharedBookable: false, status: 'Available', qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AE-0008' }
 ];
 
 const INITIAL_HISTORY: AssetHistory[] = [
@@ -137,61 +139,61 @@ const INITIAL_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 const INITIAL_NOTIFICATIONS: Notification[] = [
-  { id: 'n-1', title: 'Overdue Asset Return Alert', message: 'Asset iPhone 15 Pro (AF-0003) is past its expected return date (2026-06-15).', type: 'Overdue Return Alert', isRead: false, createdDate: '2026-06-16T08:00:00Z' },
-  { id: 'n-2', title: 'New Transfer Request', message: 'John Doe initiated a transfer request for MacBook Pro (AF-0001) to Robert Chen.', type: 'Asset Assigned', isRead: false, createdDate: '2026-07-10T15:30:00Z' },
-  { id: 'n-3', title: 'Maintenance Approved', message: 'Maintenance request for Podcast & Media Studio (AF-0007) has been approved and moved to In Progress.', type: 'Maintenance Approved', isRead: true, createdDate: '2026-07-10T14:30:00Z' }
+  { id: 'n-1', title: 'Overdue Asset Return Alert', message: 'Asset iPhone 15 Pro (AE-0003) is past its expected return date (2026-06-15).', type: 'Overdue Return Alert', isRead: false, createdDate: '2026-06-16T08:00:00Z' },
+  { id: 'n-2', title: 'New Transfer Request', message: 'John Doe initiated a transfer request for MacBook Pro (AE-0001) to Robert Chen.', type: 'Asset Assigned', isRead: false, createdDate: '2026-07-10T15:30:00Z' },
+  { id: 'n-3', title: 'Maintenance Approved', message: 'Maintenance request for Podcast & Media Studio (AE-0007) has been approved and moved to In Progress.', type: 'Maintenance Approved', isRead: true, createdDate: '2026-07-10T14:30:00Z' }
 ];
 
 const INITIAL_AUDIT_LOGS: AuditLog[] = [
-  { id: 'log-1', actorId: 'emp-2', actorName: 'Sarah Connor', action: 'Asset Registered', details: 'Registered a new asset: MacBook Pro (AF-0001)', timestamp: '2025-02-15T10:00:00Z' },
-  { id: 'log-2', actorId: 'emp-2', actorName: 'Sarah Connor', action: 'Asset Allocated', details: 'Allocated MacBook Pro (AF-0001) to John Doe', timestamp: '2025-02-15T11:30:00Z' },
+  { id: 'log-1', actorId: 'emp-2', actorName: 'Sarah Connor', action: 'Asset Registered', details: 'Registered a new asset: MacBook Pro (AE-0001)', timestamp: '2025-02-15T10:00:00Z' },
+  { id: 'log-2', actorId: 'emp-2', actorName: 'Sarah Connor', action: 'Asset Allocated', details: 'Allocated MacBook Pro (AE-0001) to John Doe', timestamp: '2025-02-15T11:30:00Z' },
   { id: 'log-3', actorId: 'emp-2', actorName: 'Sarah Connor', action: 'Audit Created', details: 'Created Audit Cycle: Q3 IT Infrastructure Audit', timestamp: '2026-07-01T09:00:00Z' }
 ];
 
 // STATE INTERFACE & HANDLER
 export class MockDatabase {
   static getDepartments = () => getOrInit('departments', INITIAL_DEPARTMENTS);
-  static saveDepartments = (data: Department[]) => localStorage.setItem('assetflow_departments', JSON.stringify(data));
+  static saveDepartments = (data: Department[]) => localStorage.setItem('aureon_departments', JSON.stringify(data));
 
   static getCategories = () => getOrInit('categories', INITIAL_CATEGORIES);
-  static saveCategories = (data: AssetCategory[]) => localStorage.setItem('assetflow_categories', JSON.stringify(data));
+  static saveCategories = (data: AssetCategory[]) => localStorage.setItem('aureon_categories', JSON.stringify(data));
 
   static getEmployees = () => getOrInit('employees', INITIAL_EMPLOYEES);
-  static saveEmployees = (data: Employee[]) => localStorage.setItem('assetflow_employees', JSON.stringify(data));
+  static saveEmployees = (data: Employee[]) => localStorage.setItem('aureon_employees', JSON.stringify(data));
 
   static getAssets = () => getOrInit('assets', INITIAL_ASSETS);
-  static saveAssets = (data: Asset[]) => localStorage.setItem('assetflow_assets', JSON.stringify(data));
+  static saveAssets = (data: Asset[]) => localStorage.setItem('aureon_assets', JSON.stringify(data));
 
   static getHistory = () => getOrInit('history', INITIAL_HISTORY);
-  static saveHistory = (data: AssetHistory[]) => localStorage.setItem('assetflow_history', JSON.stringify(data));
+  static saveHistory = (data: AssetHistory[]) => localStorage.setItem('aureon_history', JSON.stringify(data));
 
   static getAllocations = () => getOrInit('allocations', INITIAL_ALLOCATIONS);
-  static saveAllocations = (data: AssetAllocation[]) => localStorage.setItem('assetflow_allocations', JSON.stringify(data));
+  static saveAllocations = (data: AssetAllocation[]) => localStorage.setItem('aureon_allocations', JSON.stringify(data));
 
   static getTransfers = () => getOrInit('transfers', INITIAL_TRANSFERS);
-  static saveTransfers = (data: TransferRequest[]) => localStorage.setItem('assetflow_transfers', JSON.stringify(data));
+  static saveTransfers = (data: TransferRequest[]) => localStorage.setItem('aureon_transfers', JSON.stringify(data));
 
   static getBookings = () => getOrInit('bookings', INITIAL_BOOKINGS);
-  static saveBookings = (data: ResourceBooking[]) => localStorage.setItem('assetflow_bookings', JSON.stringify(data));
+  static saveBookings = (data: ResourceBooking[]) => localStorage.setItem('aureon_bookings', JSON.stringify(data));
 
   static getMaintenance = () => getOrInit('maintenance', INITIAL_MAINTENANCE);
-  static saveMaintenance = (data: MaintenanceRequest[]) => localStorage.setItem('assetflow_maintenance', JSON.stringify(data));
+  static saveMaintenance = (data: MaintenanceRequest[]) => localStorage.setItem('aureon_maintenance', JSON.stringify(data));
 
   static getAudits = () => getOrInit('audits', INITIAL_AUDITS);
-  static saveAudits = (data: AuditCycle[]) => localStorage.setItem('assetflow_audits', JSON.stringify(data));
+  static saveAudits = (data: AuditCycle[]) => localStorage.setItem('aureon_audits', JSON.stringify(data));
 
   static getAuditItems = () => getOrInit('audit_items', INITIAL_AUDIT_ITEMS);
-  static saveAuditItems = (data: AuditItem[]) => localStorage.setItem('assetflow_audit_items', JSON.stringify(data));
+  static saveAuditItems = (data: AuditItem[]) => localStorage.setItem('aureon_audit_items', JSON.stringify(data));
 
   static getNotifications = () => getOrInit('notifications', INITIAL_NOTIFICATIONS);
-  static saveNotifications = (data: Notification[]) => localStorage.setItem('assetflow_notifications', JSON.stringify(data));
+  static saveNotifications = (data: Notification[]) => localStorage.setItem('aureon_notifications', JSON.stringify(data));
 
   static getAuditLogs = () => getOrInit('logs', INITIAL_AUDIT_LOGS);
-  static saveAuditLogs = (data: AuditLog[]) => localStorage.setItem('assetflow_logs', JSON.stringify(data));
+  static saveAuditLogs = (data: AuditLog[]) => localStorage.setItem('aureon_logs', JSON.stringify(data));
 
   // CURRENT AUTHENTICATED USER STATE (Simulating Session)
   static getCurrentUser = (): Employee | null => {
-    const userJson = localStorage.getItem('assetflow_currentUser');
+    const userJson = localStorage.getItem('aureon_currentUser');
     if (userJson) {
       try {
         return JSON.parse(userJson) as Employee;
@@ -199,19 +201,15 @@ export class MockDatabase {
         return null;
       }
     }
-    // Set John Doe as the default logged in user initially for convenience
-    const johnDoe = this.getEmployees().find(e => e.email === 'employee@assetflow.com') || null;
-    if (johnDoe) {
-      localStorage.setItem('assetflow_currentUser', JSON.stringify(johnDoe));
-    }
-    return johnDoe;
+    // Do not auto-login to any user to prevent breaking /login routes protection
+    return null;
   };
 
   static setCurrentUser = (user: Employee | null) => {
     if (user) {
-      localStorage.setItem('assetflow_currentUser', JSON.stringify(user));
+      localStorage.setItem('aureon_currentUser', JSON.stringify(user));
     } else {
-      localStorage.removeItem('assetflow_currentUser');
+      localStorage.removeItem('aureon_currentUser');
     }
   };
 

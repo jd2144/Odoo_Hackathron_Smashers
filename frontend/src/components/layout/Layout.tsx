@@ -6,6 +6,7 @@ import { Navbar } from './Navbar';
 import { Employee, Notification, UserRole } from '../../types';
 import { MockDatabase } from '../../services/mockDb';
 import { Toaster } from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 
 interface LayoutProps {
   user?: Employee | null;
@@ -24,27 +25,25 @@ export const Layout: React.FC<LayoutProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user: authUser, logout: authLogout } = useAuth();
 
   // Local state fallbacks if props are not supplied (e.g. during Route rendering)
-  const [localUser, setLocalUser] = React.useState<Employee | null>(() => MockDatabase.getActiveUser());
   const [localNotifications, setLocalNotifications] = React.useState<Notification[]>(() => MockDatabase.getNotifications());
 
   // Keep state synchronized with database on route change
   React.useEffect(() => {
-    setLocalUser(MockDatabase.getActiveUser());
     setLocalNotifications(MockDatabase.getNotifications());
   }, [location.pathname]);
 
   // Support local state triggers for immediate responsiveness
-  const currentUser = user !== undefined ? user : localUser;
+  const currentUser = user !== undefined ? user : authUser;
   const currentNotifications = notifications !== undefined ? notifications : localNotifications;
 
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
     } else {
-      MockDatabase.saveActiveUser(null);
-      setLocalUser(null);
+      authLogout();
       navigate('/login');
     }
   };
@@ -57,7 +56,6 @@ export const Layout: React.FC<LayoutProps> = ({
       if (active) {
         const updated = { ...active, role: newRole };
         MockDatabase.saveActiveUser(updated);
-        setLocalUser(updated);
         // Dispatch event for local component reactivity
         window.dispatchEvent(new Event('storage'));
       }
@@ -70,7 +68,7 @@ export const Layout: React.FC<LayoutProps> = ({
     } else {
       const notifs = MockDatabase.getNotifications();
       const updated = notifs.map(n => n.id === id ? { ...n, isRead: true } : n);
-      localStorage.setItem('assetflow_notifications', JSON.stringify(updated));
+      localStorage.setItem('aureon_notifications', JSON.stringify(updated));
       setLocalNotifications(updated);
       window.dispatchEvent(new Event('storage'));
     }

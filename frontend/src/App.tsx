@@ -2,6 +2,8 @@ import * as React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { MockDatabase } from './services/mockDb';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { WaitingForApprovalView, RejectedUserView } from './components/layout/PendingRejectedViews';
 
 // Layout & Navigation components
 import { Layout } from './components/layout/Layout';
@@ -19,6 +21,7 @@ import { AssetAuditPage } from './pages/AssetAudit';
 import { Reports } from './pages/Reports';
 import { NotificationsPage } from './pages/Notifications';
 import { Settings } from './pages/Settings';
+import { UserApprovalCenter } from './pages/UserApprovalCenter';
 
 // Protected Route Shield
 interface ProtectedRouteProps {
@@ -27,26 +30,53 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const activeUser = MockDatabase.getActiveUser();
+  const { user, isLoading } = useAuth();
 
-  if (!activeUser) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-screen flex items-center justify-center bg-[#FFF8F0]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 rounded-full border-2 border-sahara-gold/30 border-t-sahara-gold animate-spin" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-sahara-clay animate-pulse">
+            Authenticating Active Session...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(activeUser.role)) {
-    // Show a graceful role restriction screen inside the layout
+  // Handle registration status guards
+  if (user.status === 'Pending Approval') {
+    return <WaitingForApprovalView />;
+  }
+
+  if (user.status === 'Rejected') {
+    return <RejectedUserView />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // Show a professional, stylized "403 Unauthorized Access" screen inside the ERP layout
     return (
-      <div className="flex-1 flex flex-col justify-center items-center h-96 gap-4 text-center px-4">
-        <div className="h-12 w-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-brand-warning text-lg font-bold">
-          !
+      <div className="flex-1 flex flex-col justify-center items-center min-h-[75vh] gap-6 text-center px-6 bg-white/50 border border-[#D4A373]/20 rounded-3xl m-6">
+        <div className="h-16 w-16 rounded-2xl bg-sahara-danger/10 border border-sahara-danger/15 flex items-center justify-center text-sahara-danger text-2xl font-black shadow-inner">
+          403
         </div>
-        <div>
-          <h2 className="text-sm font-bold text-brand-text">Access Restriction Policy</h2>
-          <p className="text-xs text-brand-muted max-w-xs mt-1 leading-relaxed">
-            Your current authorization role (<strong className="text-brand-text uppercase">{activeUser.role}</strong>) does not hold credentials for master administrative panels.
+        <div className="flex flex-col gap-2">
+          <h2 className="text-md font-black text-sahara-coffee uppercase tracking-wider">Access Restriction Protocol</h2>
+          <p className="text-xs text-sahara-clay max-w-sm mt-1 leading-relaxed font-semibold">
+            Directory access restricted. Your current security clearance level (<strong className="text-sahara-gold uppercase font-black">{user.role}</strong>) does not hold authorization credentials for administrative ERP control panels.
           </p>
         </div>
-        <Navigate to="/dashboard" replace={false} />
+        <button
+          onClick={() => window.location.href = '/dashboard'}
+          className="px-6 py-2.5 bg-sahara-coffee text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-sahara-coffee/90 shadow-md transition-all cursor-pointer"
+        >
+          Return to Dashboard
+        </button>
       </div>
     );
   }
@@ -61,73 +91,79 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <BrowserRouter>
-      {/* Visual Alerts Feed Layer */}
-      <Toaster 
-        position="top-right" 
-        toastOptions={{
-          style: {
-            fontSize: '12px',
-            borderRadius: '10px',
-            background: '#ffffff',
-            color: '#111827',
-            border: '1px solid #E5E7EB',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-            fontWeight: '500'
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: '#10B981',
-              secondary: '#ffffff',
+    <AuthProvider>
+      <BrowserRouter>
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              fontSize: '12px',
+              borderRadius: '10px',
+              background: '#ffffff',
+              color: '#111827',
+              border: '1px solid #E5E7EB',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+              fontWeight: '500'
             },
-          },
-          error: {
-            duration: 4000,
-            iconTheme: {
-              primary: '#EF4444',
-              secondary: '#ffffff',
+            success: {
+              duration: 3000,
+              iconTheme: {
+                primary: '#10B981',
+                secondary: '#ffffff',
+              },
             },
-          },
-        }}
-      />
+            error: {
+              duration: 4000,
+              iconTheme: {
+                primary: '#EF4444',
+                secondary: '#ffffff',
+              },
+            },
+          }}
+        />
 
-      <Routes>
-        {/* Public Paths */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Routes>
+          {/* Public Paths */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* Protected Inner Layout Paths */}
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }>
-          {/* Main Dashboard redirection */}
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="assets" element={<AssetManagement />} />
-          <Route path="allocations" element={<AssetAllocationPage />} />
-          <Route path="bookings" element={<ResourceBookingPage />} />
-          <Route path="maintenance" element={<MaintenancePage />} />
-          <Route path="audits" element={<AssetAuditPage />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="notifications" element={<NotificationsPage />} />
-          <Route path="settings" element={<Settings />} />
-
-          {/* Admin Restricted Paths */}
-          <Route path="organization" element={
-            <ProtectedRoute allowedRoles={['Admin']}>
-              <OrganizationSetup />
+          {/* Protected Inner Layout Paths */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Layout />
             </ProtectedRoute>
-          } />
-        </Route>
+          }>
+            {/* Main Dashboard redirection */}
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="assets" element={<AssetManagement />} />
+            <Route path="allocations" element={<AssetAllocationPage />} />
+            <Route path="bookings" element={<ResourceBookingPage />} />
+            <Route path="maintenance" element={<MaintenancePage />} />
+            <Route path="audits" element={<AssetAuditPage />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="settings" element={<Settings />} />
 
-        {/* Global Fallback */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </BrowserRouter>
+            {/* Admin Restricted Paths */}
+            <Route path="organization" element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <OrganizationSetup />
+              </ProtectedRoute>
+            } />
+            <Route path="approvals" element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <UserApprovalCenter />
+              </ProtectedRoute>
+            } />
+          </Route>
+
+          {/* Global Fallback */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 

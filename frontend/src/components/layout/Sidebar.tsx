@@ -18,6 +18,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { Employee } from '../../types';
+import { APP } from '../../constants/app';
 
 interface SidebarProps {
   user: Employee | null;
@@ -31,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Admin', 'Asset Manager', 'Department Head', 'Employee'] },
     { name: 'Organization Setup', path: '/organization', icon: Building2, roles: ['Admin'] },
+    { name: 'User Approvals', path: '/approvals', icon: ShieldCheck, roles: ['Admin'] },
     { name: 'Asset Management', path: '/assets', icon: Package, roles: ['Admin', 'Asset Manager', 'Department Head', 'Employee'] },
     { name: 'Asset Allocation', path: '/allocations', icon: FolderSync, roles: ['Admin', 'Asset Manager', 'Department Head', 'Employee'] },
     { name: 'Resource Booking', path: '/bookings', icon: CalendarRange, roles: ['Admin', 'Asset Manager', 'Department Head', 'Employee'] },
@@ -76,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
               animate={{ opacity: 1, x: 0 }}
               className="flex flex-col"
             >
-              <span className="font-extrabold text-sahara-coffee tracking-tight text-base font-sans">AssetFlow</span>
+              <span className="font-extrabold text-sahara-coffee tracking-tight text-base font-sans">{APP.NAME}</span>
               <span className="text-[9px] text-sahara-gold uppercase font-black tracking-widest leading-none mt-0.5">Enterprise ERP</span>
             </motion.div>
           )}

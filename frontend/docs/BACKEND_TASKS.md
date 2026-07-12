@@ -1,4 +1,4 @@
-# AssetFlow – Enterprise Asset & Resource Management System
+# Aureon ERP – Enterprise Asset & Resource Management System
 ## Backend Development Backlog & Prioritization Guide
 
 This backlog lists the precise backend tasks required to replace the mock database layer with real operational microservices, database storage, and secure endpoints.

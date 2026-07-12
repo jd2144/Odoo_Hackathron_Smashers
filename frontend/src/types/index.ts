@@ -12,7 +12,7 @@ export type AssetStatus =
   | 'Disposed';
 
 export type DepartmentStatus = 'Active' | 'Inactive';
-export type EmployeeStatus = 'Active' | 'Inactive';
+export type EmployeeStatus = 'Active' | 'Inactive' | 'Pending Approval' | 'Rejected';
 export type BookingStatus = 'Upcoming' | 'Ongoing' | 'Completed' | 'Cancelled';
 export type MaintenanceStatus = 
   | 'Pending' 
@@ -53,13 +53,20 @@ export interface Employee {
   role: UserRole;
   status: EmployeeStatus;
   avatarUrl?: string;
+  username?: string;
+  password?: string;
+  requestedRole?: UserRole;
+  isApproved?: boolean;
+  registrationDate?: string;
+  rejectionReason?: string;
+  estimatedReviewTime?: string;
 }
 
 export interface Asset {
   id: string;
   name: string;
   categoryId: string;
-  assetTag: string; // AF-0001
+  assetTag: string; // AE-0001
   serialNumber: string;
   acquisitionDate: string;
   acquisitionCost: number;
