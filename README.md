@@ -6,11 +6,11 @@ AssetFlow is a centralized ERP platform designed to simplify and digitize how or
 ## Problem Statement
 Organizations need a structured way to:
 - Maintain departments, asset categories, and an employee directory.
-- Track assets through a flexible lifecycle (Available, Allocated, Reserved, Under Maintenance, Lost, Retired, Disposed).
+- Track assets through a consistent lifecycle: Available, Allocated, Under Maintenance, Lost, and Decommissioned.
 - Allocate assets to employees/departments without double-allocation.
 - Book shared/limited resources by time slot with overlap validation.
 - Route maintenance requests through an approval workflow.
-- Run scheduled audit cycles with auto-generated discrepancy reports.
+- Run audit cycles that mark only explicitly reviewed missing assets as Lost.
 - Surface overdue returns, bookings, and maintenance activity via notifications and KPI dashboards.
 
 ## User Roles & Basic Workflow
