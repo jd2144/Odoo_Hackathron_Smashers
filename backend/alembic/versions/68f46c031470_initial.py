@@ -26,7 +26,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('code', sa.String(length=20), nullable=True),
     sa.Column('depreciation_rate', sa.DECIMAL(precision=5, scale=2), nullable=True),
-    sa.Column('total_assets_count', sa.Integer(), nullable=True),
+    sa.Column('total_assets_count', sa.Integer(), server_default='0', nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_categories_code'), 'categories', ['code'], unique=True)

@@ -26,6 +26,7 @@ from app.models.user import Employee
 from app.models.department import Department
 from app.models.category import Category
 from app.models.asset import Asset
+from app.models.allocation import AssetAllocation, AssetTransfer
 
 target_metadata = Base.metadata
 

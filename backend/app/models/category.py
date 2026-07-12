@@ -8,4 +8,4 @@ class Category(Base):
     name = Column(String(100), nullable=False)
     code = Column(String(20), unique=True, index=True)
     depreciation_rate = Column(DECIMAL(5, 2))
-    total_assets_count = Column(Integer, default=0)
+    total_assets_count = Column(Integer, server_default='0', nullable=False, default=0)
