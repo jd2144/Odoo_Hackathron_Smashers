@@ -77,12 +77,33 @@ export const Layout: React.FC<LayoutProps> = ({
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-brand-background">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#FFF8F0] relative">
+      {/* Decorative Layered Animated Background Blobs / Silk Curves */}
+      <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
+        {/* Floating silk blocks */}
+        <div className="absolute top-[10%] left-[5%] w-[450px] h-[350px] bg-gradient-to-tr from-[#E9D8A6]/20 to-[#D4A373]/10 blur-[90px] rounded-full animate-[silkFloat_25s_ease-in-out_infinite_alternate]" />
+        <div className="absolute bottom-[15%] right-[10%] w-[500px] h-[400px] bg-gradient-to-br from-[#F4A261]/10 to-[#C98C3A]/8 blur-[100px] rounded-full animate-[silkFloat_35s_ease-in-out_infinite_alternate_reverse]" />
+        <div className="absolute top-[60%] left-[20%] w-[380px] h-[380px] bg-gradient-to-tr from-[#FAF3E0]/25 to-[#E9D8A6]/8 blur-[80px] rounded-full animate-[silkFloat_28s_ease-in-out_infinite_alternate_8s]" />
+        
+        {/* Silk curves & Sand waves */}
+        <svg className="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <path d="M-100,200 C300,400 500,-100 900,300 C1300,700 1500,200 1900,500" fill="none" stroke="url(#duneGradient)" strokeWidth="1.5" strokeDasharray="4 4" />
+          <path d="M0,600 C400,300 700,800 1100,400 C1500,0 1700,600 2100,300" fill="none" stroke="url(#duneGradient)" strokeWidth="1" />
+          <defs>
+            <linearGradient id="duneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#D4A373" stopOpacity="0.1" />
+              <stop offset="50%" stopColor="#C98C3A" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#B5654A" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
       {/* Sidebar - collapsible, handles role filtering */}
       <Sidebar user={currentUser} onLogout={handleLogout} />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+      <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0 relative">
         {/* Navbar - handles breadcrumbs, sandbox role-switch, notification dropdown */}
         <Navbar 
           user={currentUser} 
@@ -97,10 +118,10 @@ export const Layout: React.FC<LayoutProps> = ({
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22, ease: 'easeInOut' }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="h-full flex flex-col gap-6"
             >
               <Outlet />
@@ -115,25 +136,27 @@ export const Layout: React.FC<LayoutProps> = ({
         toastOptions={{
           duration: 3500,
           style: {
-            background: '#ffffff',
-            color: '#111827',
-            border: '1px solid #E5E7EB',
+            background: 'rgba(255, 254, 252, 0.95)',
+            color: '#4E342E',
+            border: '1px solid rgba(212, 163, 115, 0.3)',
+            backdropFilter: 'blur(10px)',
             fontSize: '13px',
-            fontWeight: '500',
-            borderRadius: '10px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-            padding: '12px 16px',
+            fontWeight: '600',
+            fontFamily: '"Plus Jakarta Sans", sans-serif',
+            borderRadius: '16px',
+            boxShadow: '0 12px 30px rgba(127, 85, 57, 0.1)',
+            padding: '12px 18px',
           },
           success: {
             iconTheme: {
-              primary: '#10B981',
-              secondary: '#ffffff',
+              primary: '#4CAF50',
+              secondary: '#FFF8F0',
             },
           },
           error: {
             iconTheme: {
-              primary: '#EF4444',
-              secondary: '#ffffff',
+              primary: '#E76F51',
+              secondary: '#FFF8F0',
             },
           },
         }}

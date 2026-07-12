@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { CalendarRange, Clock, AlertTriangle, User, ShieldAlert, Plus, CheckCircle, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { CalendarRange, Clock, AlertTriangle, CheckCircle, Trash2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -9,43 +10,9 @@ import { assetService } from '../services/asset.service';
 import { ResourceBooking, Asset } from '../types';
 import toast from 'react-hot-toast';
 
-// ==============================
-// BACKEND INTEGRATION
-// Page: Resource Booking Scheduler
-//
-// API Endpoints Required:
-// 1. GET /api/bookings
-//    - Authentication: JWT Required
-//    - Response: ResourceBooking[]
-// 
-// 2. GET /api/assets?sharedBookable=true
-//    - Authentication: JWT Required
-//    - Response: Asset[] (All shared bookable resources)
-// 
-// 3. POST /api/bookings
-//    - Authentication: JWT Required
-//    - Request Body: { assetId: string, startTime: string, endTime: string, notes: string }
-//    - Response: ResourceBooking
-// 
-// 4. DELETE /api/bookings/:id
-//    - Authentication: JWT Required
-//    - Response: { success: true }
-//
-// Error Handling:
-// - Standard 401: Unauthorized (Redirect to login)
-// - Standard 409: Conflict (If timeslots overlap/intersect)
-// - Standard 400: Bad Request (Validation errors)
-// ==============================
-
 export const ResourceBookingPage: React.FC = () => {
-  // TODO(BACKEND):
-  // Replace with API response from GET /api/bookings
   const [bookings, setBookings] = React.useState<ResourceBooking[]>([]);
-
-  // TODO(BACKEND):
-  // Replace with API response from GET /api/assets?sharedBookable=true
   const [resources, setResources] = React.useState<Asset[]>([]);
-
   const [isLoading, setIsLoading] = React.useState(true);
 
   // Booking states
@@ -76,13 +43,6 @@ export const ResourceBookingPage: React.FC = () => {
     loadBookingPool();
   }, []);
 
-  // BACKEND API
-  // Method: POST
-  // Endpoint: /api/bookings
-  // Authentication: JWT Required
-  // Request DTO: { assetId: string, startTime: string, endTime: string, notes: string }
-  // Response DTO: ResourceBooking
-  // Expected Status Codes: 201 Created, 400 Bad Request, 401 Unauthorized, 409 Conflict
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAssetId || !bookingDate || !startTime || !endTime) {
@@ -102,7 +62,6 @@ export const ResourceBookingPage: React.FC = () => {
       });
       toast.success('Reservation successfully logged!');
       
-      // Reset forms
       setSelectedAssetId('');
       setBookingDate('');
       setStartTime('');
@@ -111,16 +70,10 @@ export const ResourceBookingPage: React.FC = () => {
       setShowForm(false);
       loadBookingPool();
     } catch (error: any) {
-      // Overlap validation message is returned in error.message!
       toast.error(error.message || 'Overlap verification failed.');
     }
   };
 
-  // BACKEND API
-  // Method: DELETE
-  // Endpoint: /api/bookings/:id
-  // Authentication: JWT Required
-  // Expected Status Codes: 200 OK, 401 Unauthorized, 403 Forbidden, 404 Not Found
   const handleCancelBooking = async (id: string) => {
     try {
       await bookingService.cancelBooking(id);
@@ -147,7 +100,11 @@ export const ResourceBookingPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-20 text-xs font-bold text-brand-muted uppercase tracking-wider">Syncing scheduling calendars...</div>;
+    return (
+      <div className="text-center py-24 text-[10px] font-black text-sahara-gold uppercase tracking-widest">
+        Syncing scheduling calendars...
+      </div>
+    );
   }
 
   return (
@@ -155,10 +112,10 @@ export const ResourceBookingPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-brand-text">Resource Booking Scheduler</h1>
-          <p className="text-xs text-brand-muted">Book shared corporate physical resources by specific timeslots with strict real-time overlap checking.</p>
+          <h1 className="text-2xl font-black tracking-tight text-sahara-coffee">Resource Booking Scheduler</h1>
+          <p className="text-xs text-sahara-clay/70 font-semibold leading-relaxed">Book shared corporate physical resources by specific timeslots with strict real-time overlap check locking.</p>
         </div>
-        <Button size="sm" onClick={() => setShowForm(!showForm)} className="cursor-pointer">
+        <Button size="sm" onClick={() => setShowForm(!showForm)} className="cursor-pointer rounded-xl text-xs uppercase tracking-wider font-bold">
           <CalendarRange className="h-4 w-4 mr-1.5" />
           {showForm ? 'Cancel Scheduler' : 'Book Shared Resource'}
         </Button>
@@ -166,67 +123,76 @@ export const ResourceBookingPage: React.FC = () => {
 
       {/* Scheduler Form */}
       {showForm && (
-        <Card className="border-brand-primary/20 bg-brand-primary/5 animate-slide-down">
-          <CardHeader>
-            <CardTitle className="text-xs">Schedule Time slot reservation</CardTitle>
-          </CardHeader>
-          <CardContent className="p-5">
-            {/* TODO(BACKEND): Form Submission handler for Timeslot bookings */}
-            <form onSubmit={handleCreateBooking} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-brand-text/80 uppercase tracking-wider">Select Resource *</label>
-                <select
-                  className="w-full px-3.5 py-2 text-sm bg-white border border-brand-border rounded-lg outline-none focus:border-brand-primary"
-                  value={selectedAssetId}
-                  onChange={(e) => setSelectedAssetId(e.target.value)}
-                  required
-                >
-                  <option value="">Select Resource...</option>
-                  {resources.map(r => (
-                    <option key={r.id} value={r.id}>{r.name} (Placement: {r.location})</option>
-                  ))}
-                </select>
-              </div>
+        <motion.div
+          initial={{ opacity: 0, height: 0, y: -20 }}
+          animate={{ opacity: 1, height: 'auto', y: 0 }}
+          className="overflow-hidden"
+        >
+          <Card className="border-sahara-sand/35 bg-sahara-light/20 shadow-md">
+            <CardHeader>
+              <CardTitle className="text-[10px]">Schedule Timeslot Reservation</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <form onSubmit={handleCreateBooking} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 items-end">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-bold text-sahara-clay/90 uppercase tracking-widest pl-0.5">Select Resource *</label>
+                  <select
+                    className="w-full px-4 py-2.5 text-sm bg-white/60 border border-sahara-sand/35 rounded-xl outline-none focus:border-sahara-gold focus:ring-4 focus:ring-sahara-gold/10 text-sahara-coffee font-semibold cursor-pointer transition-all"
+                    value={selectedAssetId}
+                    onChange={(e) => setSelectedAssetId(e.target.value)}
+                    required
+                  >
+                    <option value="">Select Resource...</option>
+                    {resources.map(r => (
+                      <option key={r.id} value={r.id}>{r.name} (Placement: {r.location})</option>
+                    ))}
+                  </select>
+                </div>
 
-              <Input
-                type="date"
-                label="Reservation Date *"
-                value={bookingDate}
-                onChange={(e) => setBookingDate(e.target.value)}
-                required
-              />
-
-              <Input
-                type="time"
-                label="Start Time *"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                required
-              />
-
-              <Input
-                type="time"
-                label="End Time *"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                required
-              />
-
-              <div className="sm:col-span-2 md:col-span-3">
                 <Input
-                  label="Purpose / Reservation Notes"
-                  placeholder="e.g. Q3 Design Iteration Sync with external executives."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  type="date"
+                  label="Reservation Date *"
+                  value={bookingDate}
+                  className="bg-white/60"
+                  onChange={(e) => setBookingDate(e.target.value)}
+                  required
                 />
-              </div>
 
-              <div className="flex justify-end gap-2">
-                <Button type="submit" className="w-full cursor-pointer font-bold">Reserve Time slot</Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+                <Input
+                  type="time"
+                  label="Start Time *"
+                  value={startTime}
+                  className="bg-white/60"
+                  onChange={(e) => setStartTime(e.target.value)}
+                  required
+                />
+
+                <Input
+                  type="time"
+                  label="End Time *"
+                  value={endTime}
+                  className="bg-white/60"
+                  onChange={(e) => setEndTime(e.target.value)}
+                  required
+                />
+
+                <div className="sm:col-span-2 md:col-span-3">
+                  <Input
+                    label="Purpose / Reservation Notes"
+                    placeholder="e.g. Q3 Design Iteration Sync with external executives."
+                    value={notes}
+                    className="bg-white/60"
+                    onChange={(e) => setNotes(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <Button type="submit" className="w-full cursor-pointer text-xs font-extrabold uppercase tracking-wider rounded-xl py-3 shadow-md">Reserve Timeslot</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
 
       {/* Grid split: Active bookings, Scheduler calendar list */}
@@ -234,56 +200,56 @@ export const ResourceBookingPage: React.FC = () => {
         
         {/* Reservation Schedule Queue */}
         <div className="lg:col-span-2 flex flex-col gap-4">
-          <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Schedules Queue ({bookings.filter(b => b.status !== 'Cancelled').length})</span>
+          <span className="text-[10px] font-black text-sahara-clay/60 uppercase tracking-widest pl-0.5">Schedules Queue ({bookings.filter(b => b.status !== 'Cancelled').length})</span>
           
-          {/* ==============================
-              BACKEND INTEGRATION
-              List Render: Booking Scheduler list
-              Endpoint: GET /api/bookings
-              Returns: ResourceBooking[]
-              ============================== */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             {bookings.filter(b => b.status !== 'Cancelled').length === 0 ? (
-              <div className="p-12 text-center text-xs text-brand-muted border border-dashed border-brand-border rounded-xl bg-white">
-                No upcoming active resource bookings.
-              </div>
+              <Card className="bg-white/50 border-dashed border-sahara-sand/30 p-12 text-center flex flex-col items-center gap-3 shadow-xs rounded-2xl">
+                <p className="text-xs text-sahara-clay/60 font-semibold leading-relaxed">No upcoming active resource bookings.</p>
+              </Card>
             ) : (
-              bookings.filter(b => b.status !== 'Cancelled').map(b => (
-                <Card key={b.id} className="hover-lift bg-white">
-                  <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-3.5 min-w-0">
-                      <div className="h-10 w-10 rounded-xl bg-indigo-50 border border-indigo-100 flex flex-col items-center justify-center text-indigo-600 flex-shrink-0">
-                        <Clock className="h-5 w-5" />
+              bookings.filter(b => b.status !== 'Cancelled').map((b, index) => (
+                <motion.div
+                  key={b.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.04 }}
+                >
+                  <Card className="silk-card bg-white/80 hover:border-sahara-gold/30 shadow-sm border-l-4 border-l-sahara-gold">
+                    <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-start gap-4 min-w-0">
+                        <div className="h-10 w-10 rounded-xl bg-sahara-light border border-sahara-sand/20 flex flex-col items-center justify-center text-sahara-gold flex-shrink-0">
+                          <Clock className="h-5 w-5" />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-extrabold text-sm text-sahara-coffee truncate">{getResourceName(b.assetId)}</span>
+                          <p className="text-xs text-sahara-clay/80 truncate font-semibold italic mt-0.5">"{b.notes}"</p>
+                          <span className="text-[9px] text-sahara-clay/65 font-bold uppercase tracking-wider mt-1.5 font-mono">Booked by: {b.bookedByName}</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="font-bold text-sm text-brand-text truncate">{getResourceName(b.assetId)}</span>
-                        <p className="text-xs text-brand-muted truncate font-medium italic">"{b.notes}"</p>
-                        <span className="text-[10px] text-brand-muted font-mono mt-1">Booked by: {b.bookedByName}</span>
-                      </div>
-                    </div>
 
-                    <div className="flex flex-col sm:items-end gap-1.5 flex-shrink-0">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-text">
-                        <span>{formatSlotDate(b.startTime)}</span>
-                        <span className="text-brand-muted">|</span>
-                        <span>{formatSlotTime(b.startTime)} - {formatSlotTime(b.endTime)}</span>
+                      <div className="flex flex-col sm:items-end gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-2 text-xs font-extrabold text-sahara-coffee">
+                          <span>{formatSlotDate(b.startTime)}</span>
+                          <span className="text-sahara-sand">|</span>
+                          <span>{formatSlotTime(b.startTime)} - {formatSlotTime(b.endTime)}</span>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          <Badge variant={b.status === 'Upcoming' ? 'status-reserved' : 'status-allocated'} className="font-extrabold">
+                            {b.status}
+                          </Badge>
+                          <button
+                            onClick={() => handleCancelBooking(b.id)}
+                            title="Cancel Booking"
+                            className="text-sahara-danger hover:bg-sahara-danger/10 p-1.5 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-sahara-danger/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={b.status === 'Upcoming' ? 'status-reserved' : 'status-allocated'}>
-                          {b.status}
-                        </Badge>
-                        {/* TODO(BACKEND): Cancel Booking trigger */}
-                        <button
-                          onClick={() => handleCancelBooking(b.id)}
-                          title="Cancel Booking"
-                          className="text-brand-danger hover:bg-rose-50 p-1 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))
             )}
           </div>
@@ -291,20 +257,20 @@ export const ResourceBookingPage: React.FC = () => {
 
         {/* Calendar Side Panel / Conflict Rules Info */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">Overlap Control Rules</span>
-          <Card className="bg-white">
-            <CardContent className="p-5 flex flex-col gap-3.5 text-xs text-brand-text">
-              <div className="flex items-center gap-2 font-bold text-brand-primary border-b border-brand-border pb-2">
-                <CheckCircle className="h-4 w-4" />
+          <span className="text-[10px] font-black text-sahara-clay/60 uppercase tracking-widest pl-0.5">Overlap Control Rules</span>
+          <Card className="bg-white/80 shadow-md">
+            <CardContent className="p-6 flex flex-col gap-4 text-xs text-sahara-clay/80">
+              <div className="flex items-center gap-2 font-black text-sahara-coffee border-b border-sahara-sand/10 pb-3 uppercase tracking-widest text-[10px]">
+                <CheckCircle className="h-4 w-4 text-sahara-gold" />
                 <span>Strict Timeslot Policies</span>
               </div>
-              <p className="leading-relaxed text-brand-muted">
-                Our scheduler features real-time transactional conflict locking. Overlaps are blocked strictly.
+              <p className="leading-relaxed font-semibold">
+                Our booking coordinator utilizes atomic transaction concurrency checks. Schedules overlapping even by 1 second are completely blocked to guarantee clear resource ownership.
               </p>
-              <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-2 text-[11px] text-amber-800 leading-relaxed">
-                <AlertTriangle className="h-4.5 w-4.5 text-brand-warning flex-shrink-0 mt-0.5" />
+              <div className="bg-sahara-light/40 border border-sahara-sand/30 rounded-xl p-4 flex gap-3 text-[11px] text-[#7F5539] leading-relaxed font-semibold shadow-xs">
+                <AlertTriangle className="h-5 w-5 text-sahara-gold flex-shrink-0 mt-0.5" />
                 <div>
-                  <strong className="font-bold">Timeslot Boundary Rule:</strong> A booking from 09:00 - 10:00 is fine if the next starts at exactly 10:00. However, requests intersecting by even 1 minute (e.g. 09:30 - 10:30) are blocked instantly.
+                  <strong className="font-extrabold text-sahara-coffee">Timeslot Boundary Rule:</strong> A booking from 09:00 - 10:00 is fine if the next starts at exactly 10:00. Overlapping durations are restricted with zero grace period.
                 </div>
               </div>
             </CardContent>

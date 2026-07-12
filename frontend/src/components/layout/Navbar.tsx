@@ -5,16 +5,11 @@ import {
   Bell, 
   Search, 
   ChevronRight, 
-  User, 
   ShieldAlert, 
   Check, 
-  SlidersHorizontal,
-  Mail,
-  UserCheck,
-  Building
+  SlidersHorizontal
 } from 'lucide-react';
 import { Employee, Notification, UserRole } from '../../types';
-import { MockDatabase } from '../../services/mockDb';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 
@@ -62,16 +57,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="h-16 border-b border-brand-border bg-white flex items-center justify-between px-6 select-none relative z-40">
-      {/* Left section: Breadcrumb hierarchy */}
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-        <Link to="/" className="hover:text-brand-primary transition-colors">
+    <header className="h-18 mx-6 mt-4 mb-2 bg-white/70 backdrop-blur-xl border border-sahara-sand/15 rounded-2xl flex items-center justify-between px-6 select-none shadow-lg shadow-sahara-clay/3 relative z-40">
+      {/* Left section: Breadcrumb hierarchy with serif styled root */}
+      <div className="flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-widest text-sahara-clay/60">
+        <Link to="/" className="hover:text-sahara-gold transition-colors font-black text-sahara-coffee">
           AssetFlow
         </Link>
         {pathnames.length === 0 && (
           <>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-brand-text">Operational Dashboard</span>
+            <ChevronRight className="h-3.5 w-3.5 text-sahara-sand" />
+            <span className="text-sahara-coffee/95 font-black">Operational Dashboard</span>
           </>
         )}
         {pathnames.map((path, idx) => {
@@ -80,13 +75,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           return (
             <React.Fragment key={to}>
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3.5 w-3.5 text-sahara-sand" />
               {isLast ? (
-                <span className="text-brand-text truncate max-w-[150px] sm:max-w-none">
+                <span className="text-sahara-coffee/95 font-black truncate max-w-[150px] sm:max-w-none">
                   {getBreadcrumbTitle(path)}
                 </span>
               ) : (
-                <Link to={to} className="hover:text-brand-primary transition-colors">
+                <Link to={to} className="hover:text-sahara-gold transition-colors">
                   {getBreadcrumbTitle(path)}
                 </Link>
               )}
@@ -97,17 +92,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Right section: Global utilities */}
       <div className="flex items-center gap-4">
-        {/* Search */}
+        {/* Search inside a luxury rounded input */}
         <div className="relative hidden md:block w-64">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-brand-muted" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-sahara-clay/50" />
           <input
             type="text"
-            placeholder="Search assets, tags, location..."
-            className="w-full pl-9 pr-4 py-1.5 text-xs bg-brand-background border border-brand-border rounded-lg outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/10 transition-all placeholder:text-brand-muted/70"
+            placeholder="Search assets, tags, locations..."
+            className="w-full pl-9 pr-4 py-2 text-xs bg-white/50 backdrop-blur-xs border border-sahara-sand/25 rounded-xl outline-none focus:border-sahara-gold focus:ring-4 focus:ring-sahara-gold/10 transition-all placeholder:text-sahara-clay/40 text-sahara-coffee font-semibold"
           />
         </div>
 
-        {/* Dynamic Hackathon Role Switcher */}
+        {/* Dynamic Hackathon Role Switcher with custom animations */}
         <div className="relative">
           <Button
             variant="outline"
@@ -116,11 +111,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               setShowRoleMenu(!showRoleMenu);
               setShowNotificationMenu(false);
             }}
-            className="flex items-center gap-1.5 border-dashed border-brand-primary text-brand-primary bg-brand-primary/5 hover:bg-brand-primary/10"
+            className="flex items-center gap-1.5 border-dashed border-sahara-gold/70 text-sahara-gold bg-sahara-gold/5 hover:bg-sahara-gold/10 rounded-xl"
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Role:</span>
-            <span className="font-bold">{user?.role || 'Employee'}</span>
+            <span className="hidden sm:inline text-[10px] font-bold">Role:</span>
+            <span className="font-extrabold text-[10px]">{user?.role || 'Employee'}</span>
           </Button>
 
           <AnimatePresence>
@@ -128,17 +123,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowRoleMenu(false)} />
                 <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-56 bg-white border border-brand-border rounded-xl shadow-lg z-20 overflow-hidden"
+                  exit={{ opacity: 0, y: 12, scale: 0.95 }}
+                  transition={{ type: 'spring', duration: 0.3, bounce: 0.1 }}
+                  className="absolute right-0 mt-2.5 w-56 bg-white/95 backdrop-blur-md border border-sahara-sand/25 rounded-xl shadow-2xl z-20 overflow-hidden"
                 >
-                  <div className="px-4 py-2.5 border-b border-brand-border bg-gray-50 flex items-center gap-2">
-                    <ShieldAlert className="h-4 w-4 text-brand-secondary flex-shrink-0" />
-                    <span className="text-xs font-bold text-brand-text uppercase tracking-wide">Developer Sandbox</span>
+                  <div className="px-4 py-3 border-b border-sahara-sand/15 bg-sahara-light/30 flex items-center gap-2">
+                    <ShieldAlert className="h-4 w-4 text-sahara-gold flex-shrink-0" />
+                    <span className="text-[10px] font-black text-sahara-coffee uppercase tracking-wider">Developer Sandbox</span>
                   </div>
-                  <div className="p-1 space-y-0.5">
+                  <div className="p-1.5 space-y-0.5">
                     {(['Admin', 'Asset Manager', 'Department Head', 'Employee'] as UserRole[]).map(r => (
                       <button
                         key={r}
@@ -147,18 +142,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                           setShowRoleMenu(false);
                         }}
                         className={`
-                          w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-colors cursor-pointer
+                          w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all cursor-pointer
                           ${user?.role === r 
-                            ? 'bg-brand-primary/10 text-brand-primary font-semibold' 
-                            : 'hover:bg-gray-50 text-brand-text'
+                            ? 'bg-sahara-sand/15 text-sahara-coffee font-extrabold' 
+                            : 'hover:bg-sahara-light/50 text-sahara-clay/80 hover:text-sahara-coffee'
                           }
                         `}
                       >
                         <div className="flex flex-col">
                           <span>{r}</span>
-                          <span className="text-[10px] text-brand-muted font-normal">{roleLabels[r]}</span>
+                          <span className="text-[9px] text-sahara-clay/55 font-semibold">{roleLabels[r]}</span>
                         </div>
-                        {user?.role === r && <Check className="h-3.5 w-3.5 text-brand-primary" />}
+                        {user?.role === r && <Check className="h-3.5 w-3.5 text-sahara-gold" />}
                       </button>
                     ))}
                   </div>
@@ -170,42 +165,44 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Notifications Bell */}
         <div className="relative">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               setShowNotificationMenu(!showNotificationMenu);
               setShowRoleMenu(false);
             }}
-            className="p-2 text-brand-muted hover:text-brand-text hover:bg-gray-100 rounded-lg transition-all relative cursor-pointer"
+            className="p-2.5 text-sahara-clay hover:text-sahara-coffee hover:bg-sahara-sand/10 rounded-xl transition-all relative cursor-pointer"
           >
             <Bell className="h-4.5 w-4.5" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-brand-danger animate-pulse" />
+              <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-sahara-danger border-2 border-white animate-pulse" />
             )}
-          </button>
+          </motion.button>
 
           <AnimatePresence>
             {showNotificationMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowNotificationMenu(false)} />
                 <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 12, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-80 bg-white border border-brand-border rounded-xl shadow-lg z-20 overflow-hidden"
+                  exit={{ opacity: 0, y: 12, scale: 0.95 }}
+                  transition={{ type: 'spring', duration: 0.3, bounce: 0.1 }}
+                  className="absolute right-0 mt-2.5 w-80 bg-white/95 backdrop-blur-md border border-sahara-sand/25 rounded-xl shadow-2xl z-20 overflow-hidden"
                 >
-                  <div className="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-gray-50">
-                    <span className="text-xs font-bold text-brand-text uppercase tracking-wide">Recent Notifications</span>
+                  <div className="px-4 py-3 border-b border-sahara-sand/15 flex items-center justify-between bg-sahara-light/30">
+                    <span className="text-[10px] font-black text-sahara-coffee uppercase tracking-widest">Recent Notifications</span>
                     {unreadCount > 0 && (
-                      <Badge variant="danger" className="text-[10px]">
+                      <Badge variant="danger" className="text-[8px] font-extrabold px-1.5 py-0.5">
                         {unreadCount} New
                       </Badge>
                     )}
                   </div>
 
-                  <div className="max-h-72 overflow-y-auto divide-y divide-brand-border">
+                  <div className="max-h-72 overflow-y-auto divide-y divide-sahara-sand/10">
                     {notifications.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-brand-muted">
+                      <div className="p-6 text-center text-xs text-sahara-clay/60">
                         No recent notifications.
                       </div>
                     ) : (
@@ -216,25 +213,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                             onMarkNotificationAsRead(item.id);
                           }}
                           className={`
-                            p-3 text-xs transition-colors cursor-pointer hover:bg-gray-50 flex gap-2.5
-                            ${!item.isRead ? 'bg-brand-primary/5 font-medium' : ''}
+                            p-3.5 text-xs transition-colors cursor-pointer hover:bg-sahara-light/40 flex gap-3
+                            ${!item.isRead ? 'bg-sahara-sand/5 font-bold' : ''}
                           `}
                         >
                           <div className={`
-                            h-6 w-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5
-                            ${item.type.includes('Overdue') ? 'bg-red-50 text-brand-danger' : 
-                              item.type.includes('Approved') ? 'bg-emerald-50 text-brand-success' : 
-                              item.type.includes('Booking') ? 'bg-indigo-50 text-brand-primary' : 'bg-amber-50 text-brand-warning'}
+                            h-7.5 w-7.5 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm
+                            ${item.type.includes('Overdue') ? 'bg-sahara-danger/10 text-sahara-danger border border-sahara-danger/20' : 
+                              item.type.includes('Approved') ? 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20' : 
+                              item.type.includes('Booking') ? 'bg-sahara-sand/10 text-sahara-clay border border-sahara-sand/20' : 'bg-sahara-gold/10 text-sahara-coffee border border-sahara-gold/20'}
                           `}>
                             <Bell className="h-3 w-3" />
                           </div>
                           <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                            <span className="text-brand-text font-semibold truncate">{item.title}</span>
-                            <span className="text-brand-muted text-[11px] line-clamp-2">{item.message}</span>
-                            <span className="text-[10px] text-brand-muted mt-1">{new Date(item.createdDate).toLocaleDateString()}</span>
+                            <span className="text-sahara-coffee font-extrabold truncate leading-tight">{item.title}</span>
+                            <span className="text-sahara-clay/80 text-[11px] line-clamp-2 leading-relaxed">{item.message}</span>
+                            <span className="text-[9px] text-sahara-clay/50 font-bold mt-1 uppercase tracking-wider">{new Date(item.createdDate).toLocaleDateString()}</span>
                           </div>
                           {!item.isRead && (
-                            <div className="h-1.5 w-1.5 rounded-full bg-brand-primary self-center flex-shrink-0" />
+                            <div className="h-2 w-2 rounded-full bg-sahara-gold self-center flex-shrink-0 shadow-sm" />
                           )}
                         </div>
                       ))
@@ -244,7 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Link 
                     to="/notifications" 
                     onClick={() => setShowNotificationMenu(false)}
-                    className="block text-center py-2.5 text-xs font-bold text-brand-primary hover:bg-gray-50 border-t border-brand-border transition-all"
+                    className="block text-center py-3 text-[10px] font-black uppercase tracking-wider text-sahara-gold hover:bg-sahara-light/50 border-t border-sahara-sand/15 transition-all"
                   >
                     View All Notifications
                   </Link>

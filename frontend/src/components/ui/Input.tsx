@@ -22,7 +22,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
       {label && (
         <label 
           htmlFor={inputId} 
-          className="text-xs font-semibold text-brand-text/80 uppercase tracking-wider"
+          className="text-[10px] font-bold text-sahara-clay/90 uppercase tracking-widest pl-0.5"
         >
           {label}
         </label>
@@ -33,26 +33,26 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
         type={type}
         ref={ref}
         className={`
-          w-full px-3.5 py-2 text-sm bg-white border rounded-lg transition-all outline-none
-          placeholder:text-gray-400
+          w-full px-4 py-2.5 text-sm bg-white/60 backdrop-blur-xs border rounded-xl transition-all duration-300 outline-none
+          placeholder:text-sahara-clay/40 text-sahara-coffee
           ${error 
-            ? 'border-brand-danger focus:border-brand-danger focus:ring-2 focus:ring-brand-danger/20' 
-            : 'border-brand-border focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10'
+            ? 'border-sahara-danger focus:border-sahara-danger focus:ring-4 focus:ring-sahara-danger/10' 
+            : 'border-sahara-sand/35 focus:border-sahara-gold focus:ring-4 focus:ring-sahara-gold/10'
           }
-          disabled:bg-gray-50 disabled:text-gray-500
+          disabled:bg-sahara-light/20 disabled:text-sahara-clay/40
           ${className}
         `}
         {...props}
       />
       
       {error && (
-        <span className="text-xs text-brand-danger font-medium animate-fade-in">
+        <span className="text-xs text-sahara-danger font-semibold animate-fade-in pl-0.5">
           {error}
         </span>
       )}
       
       {!error && helperText && (
-        <span className="text-xs text-brand-muted">
+        <span className="text-xs text-sahara-clay/60 pl-0.5 leading-relaxed">
           {helperText}
         </span>
       )}
