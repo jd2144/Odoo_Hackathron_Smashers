@@ -46,5 +46,59 @@ The API follows RESTful principles:
 - `/reports/*`: KPI dashboards and live depreciation calculators.
 - `/notifications/*`: Inbox for user alerts and activity tracking.
 
+## Development Setup
+
+### 1. Prerequisites
+- Python 3.10+
+- PostgreSQL database
+
+### 2. Environment Configuration
+Create a `.env` file in the `backend` folder based on `.env.example` (or edit the existing one):
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_SERVER=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=assetflow
+SECRET_KEY=your_secret_key_here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=480
+```
+
+### 3. Installation & Run
+From the `backend` directory, run the following commands:
+```powershell
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+.\venv\Scripts\Activate.ps1
+# Mac/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt # or pip install list
+
+# Run database migrations
+alembic upgrade head
+
+# Start the development server
+uvicorn app.main:app --reload
+```
+
+The API docs will be available at `http://127.0.0.1:8000/docs`.
+
 ## Testing & Quality Assurance
-The repository includes executable checkpoint scripts for allocation, booking, maintenance, audits, and reports. They use FastAPI's `TestClient` with an isolated SQLite database to verify key business rules. PostgreSQL should be used in deployed environments so database-level partial and exclusion constraints are active.
+
+The codebase includes a comprehensive test suite powered by `pytest`.
+
+### Running Tests
+To run all tests (including our newly implemented backend validation tests):
+```bash
+# Activate your venv, then run:
+pytest test/ -p no:warnings --tb=short
+```
+
+### Test Database Isolation
+The test suite utilizes a highly secure, zero-pollution transactional testing pattern. Tests run against your configured PostgreSQL database (enabling real Postgres-specific features like GIST exclusion constraints), but each test runs inside a nested transaction that is automatically **rolled back** at the end. Your local development data remains untouched.
